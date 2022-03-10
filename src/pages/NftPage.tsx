@@ -21,14 +21,13 @@ import LinkAddress from '../components/LinkAddress';
 import { MarketInfo } from '../utils/types';
 import Orderbook from '../components/Orderbook';
 import StandaloneBalancesDisplay from '../components/StandaloneBalancesDisplay';
-import { TVChartContainer } from '../components/TradingView'
+import { TVChartContainer } from '../components/TradingView';
 import TradeForm from '../components/TradeForm';
 import TradesTable from '../components/TradesTable';
 import UserInfoTable from '../components/UserInfoTable';
 import { notify } from '../utils/notifications';
 import styled from 'styled-components';
 import { nanoid } from 'nanoid';
-
 
 const { Option, OptGroup } = Select;
 
@@ -39,13 +38,11 @@ const Wrapper = styled.div`
   padding: 16px 16px;
   .borderNone .ant-select-selector {
     border: none !important;
-  };
+  }
 `;
 
 export default function NftPage() {
   const { marketAddress } = useParams();
-  console.log("NFT page")
-  console.log(marketAddress)
   useEffect(() => {
     if (marketAddress) {
       localStorage.setItem('marketAddress', JSON.stringify(marketAddress));
@@ -85,12 +82,11 @@ function TradePageInner() {
   });
 
   useEffect(() => {
-    document.title = marketName ? `${marketName} — Raydium` : 'Raydium';
+    document.title = marketName ? `${marketName} — DinoDex` : 'Dino';
   }, [marketName]);
 
-  const changeOrderRef = useRef<
-    ({ size, price }: { size?: number; price?: number }) => void
-    >();
+  const changeOrderRef =
+    useRef<({ size, price }: { size?: number; price?: number }) => void>();
 
   // useEffect(() => {
   //   const handleResize = () => {
@@ -145,7 +141,7 @@ function TradePageInner() {
     const newCustomMarkets = [...customMarkets, customMarket];
     setCustomMarkets(newCustomMarkets);
     setMarketAddress(customMarket.address);
-  };
+  }; 
 
   const onDeleteCustomMarket = (address) => {
     const newCustomMarkets = customMarkets.filter((m) => m.address !== address);
@@ -216,12 +212,12 @@ function TradePageInner() {
 }
 
 function MarketSelector({
-                          markets,
-                          placeholder,
-                          setHandleDeprecated,
-                          customMarkets,
-                          onDeleteCustomMarket,
-                        }) {
+  markets,
+  placeholder,
+  setHandleDeprecated,
+  customMarkets,
+  onDeleteCustomMarket,
+}) {
   const { market, setMarketAddress } = useMarket();
 
   const onSetMarketAddress = (marketAddress) => {
@@ -245,7 +241,7 @@ function MarketSelector({
         addList.push(arr[index].address.toBase58());
       }
     }
-    return reList
+    return reList;
   };
 
   return (
@@ -295,21 +291,20 @@ function MarketSelector({
         </OptGroup>
       )}
       <OptGroup label="Markets">
-        {uniqueArray(markets)
-          .map(({ address, name, deprecated }, i) => (
-            <Option
-              value={address.toBase58()}
-              key={nanoid()}
-              name={name}
-              style={{
-                padding: '10px',
-                // @ts-ignore
-                backgroundColor: i % 2 === 0 ? 'rgb(39, 44, 61)' : null,
-              }}
-            >
-              {name} {deprecated ? ' (Deprecated)' : null}
-            </Option>
-          ))}
+        {uniqueArray(markets).map(({ address, name, deprecated }, i) => (
+          <Option
+            value={address.toBase58()}
+            key={nanoid()}
+            name={name}
+            style={{
+              padding: '10px',
+              // @ts-ignore
+              backgroundColor: i % 2 === 0 ? 'rgb(39, 44, 61)' : null,
+            }}
+          >
+            {name} {deprecated ? ' (Deprecated)' : null}
+          </Option>
+        ))}
       </OptGroup>
     </Select>
   );
@@ -331,33 +326,79 @@ const DeprecatedMarketsPage = ({ switchToLiveMarkets }) => {
 
 const RenderNormal = ({ onChangeOrderRef, onPrice, onSize }) => {
   return (
-    <Row
-      style={{
-        minHeight: '900px',
-        flexWrap: 'nowrap',
-      }}
-    >
-      <Col
-        flex="15%"
-        style={{ height: '100%', display: 'flex', flexDirection: 'column',  minWidth: '280px' }}
+    <div>
+      <Row
+        style={{
+          minHeight: '500px',
+          flexWrap: 'nowrap',
+        }}
       >
-        <TradeForm setChangeOrderRef={onChangeOrderRef} />
-        <StandaloneBalancesDisplay />
-      </Col>
+        <Col
+          flex="33%"
+          style={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: '280px',
+            padding: '3%',
+          }}
+        >
+          <img src={require('../assets/blue_dino_egg2.png')} />
+          <TradeForm setChangeOrderRef={onChangeOrderRef} />
+          <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
+        </Col>
 
-      <Col flex="auto" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <TVChartContainer/>
-        <UserInfoTable smallScreen={false}/>
-      </Col>
+        <Col
+          flex="33%"
+          style={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: '280px',
+            padding: '3%',
+          }}
+        >
+          <img src={require('./../assets/green_dino_egg2.png')} />
+          <TradeForm setChangeOrderRef={onChangeOrderRef} />
+          <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
+        </Col>
 
-      <Col
-        flex="15%" 
-        style={{ height: '100%', minWidth: '280px' }}>
-        <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
-        <TradesTable smallScreen={false} />
-      </Col>
+        <Col
+          flex="33%"
+          style={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: '280px',
+            padding: '3%',
+          }}
+        >
+          <img src={require('../assets/purple_dino_egg2.png')} />
+          <TradeForm setChangeOrderRef={onChangeOrderRef} />
+          <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
+        </Col>
+      </Row>
 
-    </Row>
+      <Row
+        style={{
+          minHeight: '150px',
+          flexWrap: 'nowrap',
+        }}
+      >
+        <Col
+          flex="99%"
+          style={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: '280px',
+            padding: '3%',
+          }}
+        >
+          <UserInfoTable smallScreen={false} />
+        </Col>
+      </Row>
+    </div>
   );
 };
 
@@ -366,7 +407,7 @@ const RenderSmaller = ({ onChangeOrderRef, onPrice, onSize }) => {
     <>
       <Row>
         <Col span={24}>
-          <TVChartContainer/>
+          <TVChartContainer />
         </Col>
 
         <Col span={16}>
@@ -377,11 +418,11 @@ const RenderSmaller = ({ onChangeOrderRef, onPrice, onSize }) => {
         </Col>
 
         <Col span={24}>
-          <UserInfoTable smallScreen={true}/>
+          <UserInfoTable smallScreen={true} />
         </Col>
 
         <Col xs={24} sm={12}>
-          <StandaloneBalancesDisplay/>
+          <StandaloneBalancesDisplay />
         </Col>
         <Col xs={24} sm={12}>
           <TradesTable smallScreen={false} />

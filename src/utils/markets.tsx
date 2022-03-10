@@ -47,7 +47,7 @@ import { useWallet } from './wallet';
 import markets from './markets.json'
 // Used in debugging, should be false in production
 const _IGNORE_DEPRECATED = false;
-
+// ook bij token-mints en markets (binnen serumdex) de tokens en markets bijzetten om unknown te voorkomen en balances te fixen 
 const _MARKETS = [
   {
     name: 'DINO/USDC',

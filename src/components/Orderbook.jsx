@@ -111,7 +111,7 @@ export default function Orderbook({ smallScreen, depth = 7, onPrice, onSize }) {
         ...(smallScreen
           ? { flex: 1 }
           : { height: '500px', overflow: 'hidden' }),
-        height: 540,
+        height: 200,
       }}
     >
       <Title

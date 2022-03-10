@@ -39,7 +39,7 @@ const MENU = [
   },
   {
     title: 'NFTs',
-    link: '/nft',
+    link: '/#/nft',
   },
 ];
 
