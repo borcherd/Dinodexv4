@@ -10,6 +10,7 @@ import NewPoolPage from './pages/pools/NewPoolPage';
 import PoolPage from './pages/pools/PoolPage';
 import PoolListPage from './pages/pools/PoolListPage';
 import { getTradePageUrl } from './utils/markets';
+import NftPage from './pages/NftPage';
 
 export function Routes() {
   return (
@@ -22,6 +23,9 @@ export function Routes() {
             </Route>
             <Route exact path="/market/:marketAddress">
               <TradePage />
+            </Route>
+            <Route exact path="/nft">
+              <NftPage />
             </Route>
             <Route exact path="/orders" component={OpenOrdersPage} />
             <Route exact path="/balances" component={BalancesPage} />
