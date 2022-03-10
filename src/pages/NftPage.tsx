@@ -32,13 +32,15 @@ import { nanoid } from 'nanoid';
 const { Option, OptGroup } = Select;
 
 const Wrapper = styled.div`
+background: rgb(28,28,28);
+background: radial-gradient(circle, rgba(28,28,28,1) 0%, rgba(6,6,6,1) 50%, rgba(48,24,50,1) 100%); 
   height: 100%;
   display: flex;
   flex-direction: column;
   padding: 16px 16px;
   .borderNone .ant-select-selector {
     border: none !important;
-  }
+  };
 `;
 
 export default function NftPage() {
@@ -171,24 +173,7 @@ function TradePageInner() {
               onDeleteCustomMarket={onDeleteCustomMarket}
             />
           </Col>
-          {market ? (
-            <Col>
-              <Popover
-                content={<LinkAddress address={market.publicKey.toBase58()} />}
-                placement="bottomRight"
-                title="Market address"
-                trigger="click"
-              >
-                <InfoCircleOutlined style={{ color: '#2abdd2' }} />
-              </Popover>
-            </Col>
-          ) : null}
-          <Col>
-            <PlusCircleOutlined
-              style={{ color: '#2abdd2' }}
-              onClick={() => setAddMarketVisible(true)}
-            />
-          </Col>
+          
           {deprecatedMarkets && deprecatedMarkets.length > 0 && (
             <React.Fragment>
               <Col>

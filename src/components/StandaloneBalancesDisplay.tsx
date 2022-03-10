@@ -24,13 +24,11 @@ const RowBox = styled(Row)`
 `;
 
 const ActionButton = styled(Button)`
-  color: rgba(241, 241, 242, 0.75);
   font-size: 12px;
   display: 'inline-block';
   padding-right: 15px;
   padding-left: 15px;
   border-radius: 4px;
-  border: 1px solid rgba(241, 241, 242, 0.5);
 `;
 
 export default function StandaloneBalancesDisplay() {
@@ -69,7 +67,7 @@ export default function StandaloneBalancesDisplay() {
     if (!openOrdersAccount) {
       notify({
         message: 'Error settling funds',
-        description: 'Open orders account is undefined',
+        description: 'Open orders account is undefined 1',
         type: 'error',
       });
       return;
@@ -77,7 +75,7 @@ export default function StandaloneBalancesDisplay() {
     if (!baseCurrencyAccount) {
       notify({
         message: 'Error settling funds',
-        description: 'Open orders account is undefined',
+        description: 'Open orders account is undefined 2',
         type: 'error',
       });
       return;
@@ -85,7 +83,7 @@ export default function StandaloneBalancesDisplay() {
     if (!quoteCurrencyAccount) {
       notify({
         message: 'Error settling funds',
-        description: 'Open orders account is undefined',
+        description: 'Open orders account is undefined 3',
         type: 'error',
       });
       return;
@@ -214,27 +212,6 @@ export default function StandaloneBalancesDisplay() {
         baseOrQuote={baseOrQuote}
         onClose={() => setBaseOrQuote('')}
       />
-      <div style={{ textAlign: 'center', paddingTop: 32, display: window.innerWidth>540 ? 'block':'none' }}>
-        <img src={logo1} alt="" />
-        <div style={{ paddingTop: 20, fontSize: 16, color: '#F1F1F2' }}>
-          First time trading
-        </div>
-        <div style={{ fontSize: 16, color: '#F1F1F2' }}>
-          on Raydium?
-        </div>
-        <a
-          href={'https://raydium.gitbook.io/raydium/'}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color : 'rgb(173,175,184)',}}
-        >
-        <div style={{ paddingTop: 16, fontSize: 12, color: '#5AC4BE' }}>
-
-            see how it works
-
-        </div>
-      </a>
-      </div>
     </FloatingElement>
   );
 }

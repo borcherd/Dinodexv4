@@ -11,7 +11,6 @@ import { useMintToTickers } from '../utils/tokens';
 const { TabPane } = Tabs;
 
 export default function BalancesPage() {
-  console.log("tieten")
   const walletBalances = useWalletBalancesForAllMarkets();
   const mintToTickers = useMintToTickers();
   const openOrdersBalances = useAllOpenOrdersBalances();

@@ -12,6 +12,8 @@ import WalletConnect from './WalletConnect';
 import { getTradePageUrl } from '../utils/markets';
 
 const Wrapper = styled.div`
+  background: transparent; 
+
   // flex-direction: row;
   // justify-content: flex-end;
   // flex-wrap: wrap;
@@ -19,7 +21,7 @@ const Wrapper = styled.div`
 const LogoWrapper = styled.div`
   display: flex;
   align-items: center;
-  color: #2abdd2;
+  color: #d44eb7;
   font-weight: bold;
   cursor: pointer;
   img {
@@ -118,7 +120,7 @@ export default function TopBar() {
         fontSize: '16px',
         display: 'flex',
         justifyContent: 'center',
-        background: '#0F1429',
+        background: 'transparent',
       }}
       selectable={false}
     >
@@ -146,7 +148,7 @@ export default function TopBar() {
         onAddCustomEndpoint={onAddCustomEndpoint}
         onClose={() => setAddEndpointVisible(false)}
       />
-      <Wrapper style={{ background: '#0F1429' }}>
+      <Wrapper >
         <Row wrap={false} style={{ paddingTop: 25, height: 70 }}>
           <Col flex="none">
             <LogoWrapper

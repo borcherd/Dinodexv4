@@ -8,9 +8,7 @@ import FloatingElement from './layout/FloatingElement';
 import usePrevious from '../utils/usePrevious';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 
-const Title = styled.div`
-  color: rgba(255, 255, 255, 1);
-`;
+const Title = styled.div``;
 
 const SizeTitle = styled(Row)`
   padding: 16px 0 12px;
@@ -111,7 +109,7 @@ export default function Orderbook({ smallScreen, depth = 7, onPrice, onSize }) {
         ...(smallScreen
           ? { flex: 1 }
           : { height: '500px', overflow: 'hidden' }),
-        height: 200,
+        height: 500,
       }}
     >
       <Title
@@ -130,7 +128,7 @@ export default function Orderbook({ smallScreen, depth = 7, onPrice, onSize }) {
           span={12}
           style={{
             textAlign: 'right',
-            color: 'rgba(241, 241, 242, 0.5)',
+            color: 'white',
             fontSize: 12,
           }}
         >
@@ -141,7 +139,7 @@ export default function Orderbook({ smallScreen, depth = 7, onPrice, onSize }) {
           style={{
             textAlign: 'right',
             paddingRight: 20,
-            color: 'rgba(241, 241, 242, 0.5)',
+            color: 'white',
             fontSize: 12,
           }}
         >
@@ -167,7 +165,7 @@ export default function Orderbook({ smallScreen, depth = 7, onPrice, onSize }) {
           span={12}
           style={{
             textAlign: 'right',
-            color: 'rgba(241, 241, 242, 0.5)',
+            color: 'white',
             fontSize: 12,
           }}
         >
@@ -178,7 +176,7 @@ export default function Orderbook({ smallScreen, depth = 7, onPrice, onSize }) {
           style={{
             textAlign: 'right',
             paddingRight: 20,
-            color: 'rgba(241, 241, 242, 0.5)',
+            color: 'white',
             fontSize: 12,
           }}
         >

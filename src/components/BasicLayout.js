@@ -10,7 +10,14 @@ export default function BasicLayout({ children }) {
       <Layout
         style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}
       >
-        <Header style={{ padding: 0, minHeight: 64, height: 'unset' }}>
+        <Header
+          style={{
+            padding: 0,
+            minHeight: 90,
+            height: 'unset',
+            backgroundColor: '#0d1017',
+          }}
+        >
           <TopBa1r />
         </Header>
         <Content style={{ flex: 1 }}>{children}</Content>

@@ -21,7 +21,7 @@ import LinkAddress from '../components/LinkAddress';
 import { MarketInfo } from '../utils/types';
 import Orderbook from '../components/Orderbook';
 import StandaloneBalancesDisplay from '../components/StandaloneBalancesDisplay';
-import { TVChartContainer } from '../components/TradingView'
+import { TVChartContainer } from '../components/TradingView';
 import TradeForm from '../components/TradeForm';
 import TradesTable from '../components/TradesTable';
 import UserInfoTable from '../components/UserInfoTable';
@@ -29,17 +29,23 @@ import { notify } from '../utils/notifications';
 import styled from 'styled-components';
 import { nanoid } from 'nanoid';
 
-
 const { Option, OptGroup } = Select;
 
 const Wrapper = styled.div`
+  background: rgb(28, 28, 28);
+  background: radial-gradient(
+    circle,
+    rgba(28, 28, 28, 1) 0%,
+    rgba(6, 6, 6, 1) 50%,
+    rgba(48, 24, 50, 1) 100%
+  );
   height: 100%;
   display: flex;
   flex-direction: column;
   padding: 16px 16px;
   .borderNone .ant-select-selector {
     border: none !important;
-  };
+  }
 `;
 
 export default function TradePage() {
@@ -86,9 +92,8 @@ function TradePageInner() {
     document.title = marketName ? `${marketName} — Raydium` : 'Raydium';
   }, [marketName]);
 
-  const changeOrderRef = useRef<
-    ({ size, price }: { size?: number; price?: number }) => void
-    >();
+  const changeOrderRef =
+    useRef<({ size, price }: { size?: number; price?: number }) => void>();
 
   // useEffect(() => {
   //   const handleResize = () => {
@@ -173,24 +178,6 @@ function TradePageInner() {
               onDeleteCustomMarket={onDeleteCustomMarket}
             />
           </Col>
-          {market ? (
-            <Col>
-              <Popover
-                content={<LinkAddress address={market.publicKey.toBase58()} />}
-                placement="bottomRight"
-                title="Market address"
-                trigger="click"
-              >
-                <InfoCircleOutlined style={{ color: '#2abdd2' }} />
-              </Popover>
-            </Col>
-          ) : null}
-          <Col>
-            <PlusCircleOutlined
-              style={{ color: '#2abdd2' }}
-              onClick={() => setAddMarketVisible(true)}
-            />
-          </Col>
           {deprecatedMarkets && deprecatedMarkets.length > 0 && (
             <React.Fragment>
               <Col>
@@ -214,12 +201,12 @@ function TradePageInner() {
 }
 
 function MarketSelector({
-                          markets,
-                          placeholder,
-                          setHandleDeprecated,
-                          customMarkets,
-                          onDeleteCustomMarket,
-                        }) {
+  markets,
+  placeholder,
+  setHandleDeprecated,
+  customMarkets,
+  onDeleteCustomMarket,
+}) {
   const { market, setMarketAddress } = useMarket();
 
   const onSetMarketAddress = (marketAddress) => {
@@ -243,7 +230,7 @@ function MarketSelector({
         addList.push(arr[index].address.toBase58());
       }
     }
-    return reList
+    return reList;
   };
 
   return (
@@ -293,21 +280,20 @@ function MarketSelector({
         </OptGroup>
       )}
       <OptGroup label="Markets">
-        {uniqueArray(markets)
-          .map(({ address, name, deprecated }, i) => (
-            <Option
-              value={address.toBase58()}
-              key={nanoid()}
-              name={name}
-              style={{
-                padding: '10px',
-                // @ts-ignore
-                backgroundColor: i % 2 === 0 ? 'rgb(39, 44, 61)' : null,
-              }}
-            >
-              {name} {deprecated ? ' (Deprecated)' : null}
-            </Option>
-          ))}
+        {uniqueArray(markets).map(({ address, name, deprecated }, i) => (
+          <Option
+            value={address.toBase58()}
+            key={nanoid()}
+            name={name}
+            style={{
+              padding: '10px',
+              // @ts-ignore
+              backgroundColor: i % 2 === 0 ? 'rgb(39, 44, 61)' : null,
+            }}
+          >
+            {name} {deprecated ? ' (Deprecated)' : null}
+          </Option>
+        ))}
       </OptGroup>
     </Select>
   );
@@ -337,24 +323,29 @@ const RenderNormal = ({ onChangeOrderRef, onPrice, onSize }) => {
     >
       <Col
         flex="15%"
-        style={{ height: '100%', display: 'flex', flexDirection: 'column',  minWidth: '280px' }}
+        style={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: '280px',
+        }}
       >
         <TradeForm setChangeOrderRef={onChangeOrderRef} />
         <StandaloneBalancesDisplay />
       </Col>
 
-      <Col flex="auto" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <TVChartContainer/>
-        <UserInfoTable smallScreen={false}/>
+      <Col
+        flex="auto"
+        style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+      >
+        <TVChartContainer />
+        <UserInfoTable smallScreen={false} />
       </Col>
 
-      <Col
-        flex="15%" 
-        style={{ height: '100%', minWidth: '280px' }}>
+      <Col flex="15%" style={{ height: '100%', minWidth: '280px' }}>
         <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
         <TradesTable smallScreen={false} />
       </Col>
-
     </Row>
   );
 };
@@ -364,7 +355,7 @@ const RenderSmaller = ({ onChangeOrderRef, onPrice, onSize }) => {
     <>
       <Row>
         <Col span={24}>
-          <TVChartContainer/>
+          <TVChartContainer />
         </Col>
 
         <Col span={16}>
@@ -375,11 +366,11 @@ const RenderSmaller = ({ onChangeOrderRef, onPrice, onSize }) => {
         </Col>
 
         <Col span={24}>
-          <UserInfoTable smallScreen={true}/>
+          <UserInfoTable smallScreen={true} />
         </Col>
 
         <Col xs={24} sm={12}>
-          <StandaloneBalancesDisplay/>
+          <StandaloneBalancesDisplay />
         </Col>
         <Col xs={24} sm={12}>
           <TradesTable smallScreen={false} />
