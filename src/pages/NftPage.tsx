@@ -141,7 +141,7 @@ function TradePageInner() {
     const newCustomMarkets = [...customMarkets, customMarket];
     setCustomMarkets(newCustomMarkets);
     setMarketAddress(customMarket.address);
-  }; 
+  };
 
   const onDeleteCustomMarket = (address) => {
     const newCustomMarkets = customMarkets.filter((m) => m.address !== address);
@@ -406,27 +406,25 @@ const RenderSmaller = ({ onChangeOrderRef, onPrice, onSize }) => {
   return (
     <>
       <Row>
-        <Col span={24}>
-          <TVChartContainer />
-        </Col>
-
-        <Col span={16}>
+        <Col span={24} >
+          <img src={require('../assets/blue_dino_egg2.png')} height='200px' width='200px' />
           <TradeForm setChangeOrderRef={onChangeOrderRef} />
-        </Col>
-        <Col span={8}>
-          <Orderbook smallScreen={true} onPrice={onPrice} onSize={onSize} />
+          <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
         </Col>
 
         <Col span={24}>
-          <UserInfoTable smallScreen={true} />
+          <img src={require('../assets/green_dino_egg2.png')} height='200px' width='200px' />
+          <TradeForm setChangeOrderRef={onChangeOrderRef} />
+          <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
         </Col>
 
-        <Col xs={24} sm={12}>
-          <StandaloneBalancesDisplay />
+        <Col span={24} >
+          <img src={require('../assets/purple_dino_egg2.png')} height='200px' width='200px'  />
+          <TradeForm setChangeOrderRef={onChangeOrderRef} />
+          <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
         </Col>
-        <Col xs={24} sm={12}>
-          <TradesTable smallScreen={false} />
-        </Col>
+
+        
       </Row>
     </>
   );
