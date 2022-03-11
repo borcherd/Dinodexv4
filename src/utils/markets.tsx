@@ -288,7 +288,7 @@ export function MarketProvider({ marketAddress, setMarketAddress, children }) {
 
   const [market, setMarket] = useState<Market | null>();
 
-  const [marketName, setMarketName] = useState('RAY/USDT');
+  const [marketName, setMarketName] = useState('DINO/USDC');
 
   const [localToken, setLocalToken] = useState(false)
   const [localMarket, setLocalMarket] = useState(false)
@@ -478,7 +478,21 @@ export function getTradePageUrl(marketAddress?: string) {
       DEFAULT_MARKET?.address.toBase58() ||
       'AC11orBo1k5PFPyhjTj9o4KjcwD9b95hauSRtExy8eKv';
   }
-  return `/market/${marketAddress}`;
+  return `/trade/market/${marketAddress}`;
+}
+
+export function getNftPageUrl(marketAddress?: string) {
+  if (!marketAddress) {
+    const saved = localStorage.getItem('marketAddress');
+    if (saved) {
+      marketAddress = JSON.parse(saved);
+    }
+    marketAddress =
+      marketAddress ||
+      DEFAULT_MARKET?.address.toBase58() ||
+      'AC11orBo1k5PFPyhjTj9o4KjcwD9b95hauSRtExy8eKv';
+  }
+  return `/nft/market/${marketAddress}`;
 }
 
 export function useSelectedTokenAccounts(): [

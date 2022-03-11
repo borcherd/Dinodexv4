@@ -21,8 +21,11 @@ export function Routes() {
             <Route exact path="/">
               <Redirect to={getTradePageUrl()} />
             </Route>
-            <Route exact path="/market/:marketAddress">
+            <Route exact path="/trade/market/:marketAddress">
               <TradePage />
+            </Route>
+            <Route exact path="/nft/market/:marketAddress">
+              <NftPage />
             </Route>
             <Route exact path="/nft" component={NftPage}>
             </Route>

@@ -1,0 +1,14 @@
+Nftpage:
+    welke egg meegeven
+    open orders- balances tab aanpassen
+    layout 
+Algemeen:
+    project serum markets en token-mints aanpassen dat de tokens niet unknown blijven
+    marketsfile cleanen
+    logo fixen
+    topbar alignment
+    kleuren van underlines aanpassen
+    trading blijft underlined, ookal wordt er genavigeerd naar Nftpage
+    eggs markets in aparte file zetten
+    
+
