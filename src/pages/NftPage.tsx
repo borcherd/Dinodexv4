@@ -32,19 +32,24 @@ import { nanoid } from 'nanoid';
 const { Option, OptGroup } = Select;
 
 const Wrapper = styled.div`
-background: rgb(28,28,28);
-background: radial-gradient(circle, rgba(28,28,28,1) 0%, rgba(6,6,6,1) 50%, rgba(48,24,50,1) 100%); 
+  background: rgb(28, 28, 28);
+  background: radial-gradient(
+    circle,
+    rgba(28, 28, 28, 1) 0%,
+    rgba(6, 6, 6, 1) 50%,
+    rgba(48, 24, 50, 1) 100%
+  );
   height: 100%;
   display: flex;
   flex-direction: column;
   padding: 16px 16px;
   .borderNone .ant-select-selector {
     border: none !important;
-  };
+  }
 `;
 
 export default function NftPage() {
-  const { marketAddress } = useParams();
+  const marketAddress = 'AC11orBo1k5PFPyhjTj9o4KjcwD9b95hauSRtExy8eKv'; // page needs to support multiple markets so new marketprovider needs to be build
   useEffect(() => {
     if (marketAddress) {
       localStorage.setItem('marketAddress', JSON.stringify(marketAddress));
@@ -129,34 +134,12 @@ function TradePageInner() {
     }
   })();
 
-  const onAddCustomMarket = (customMarket) => {
-    const marketInfo = getMarketInfos(customMarkets).some(
-      (m) => m.address.toBase58() === customMarket.address,
-    );
-    if (marketInfo) {
-      notify({
-        message: `A market with the given ID already exists`,
-        type: 'error',
-      });
-      return;
-    }
-    const newCustomMarkets = [...customMarkets, customMarket];
-    setCustomMarkets(newCustomMarkets);
-    setMarketAddress(customMarket.address);
-  };
-
-  const onDeleteCustomMarket = (address) => {
-    const newCustomMarkets = customMarkets.filter((m) => m.address !== address);
-    setCustomMarkets(newCustomMarkets);
-  };
-  // const [newMarKets] = useState(markets);
-
   return (
     <>
       <CustomMarketDialog
         visible={addMarketVisible}
         onClose={() => setAddMarketVisible(false)}
-        onAddCustomMarket={onAddCustomMarket}
+        onAddCustomMarket={() => {}}
       />
       <Wrapper>
         <Row
@@ -170,10 +153,10 @@ function TradePageInner() {
               setHandleDeprecated={setHandleDeprecated}
               placeholder={'Select market'}
               customMarkets={customMarkets}
-              onDeleteCustomMarket={onDeleteCustomMarket}
+              onDeleteCustomMarket={() => {}}
             />
           </Col>
-          
+
           {deprecatedMarkets && deprecatedMarkets.length > 0 && (
             <React.Fragment>
               <Col>
@@ -391,25 +374,36 @@ const RenderSmaller = ({ onChangeOrderRef, onPrice, onSize }) => {
   return (
     <>
       <Row>
-        <Col span={24} >
-          <img src={require('../assets/blue_dino_egg2.png')} height='200px' width='200px' />
+        <Col span={24}>
+          <img
+            src={require('../assets/blue_dino_egg2.png')}
+            height="200px"
+            width="200px"
+          />
+          <TradeForm setChangeOrderRef={onChangeOrderRef} />
+          <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
+          {/* Orderbook en TradeForm add value add address field to define market */}
+        </Col>
+
+        <Col span={24}>
+          <img
+            src={require('../assets/green_dino_egg2.png')}
+            height="200px"
+            width="200px"
+          />
           <TradeForm setChangeOrderRef={onChangeOrderRef} />
           <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
         </Col>
 
         <Col span={24}>
-          <img src={require('../assets/green_dino_egg2.png')} height='200px' width='200px' />
+          <img
+            src={require('../assets/purple_dino_egg2.png')}
+            height="200px"
+            width="200px"
+          />
           <TradeForm setChangeOrderRef={onChangeOrderRef} />
           <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
         </Col>
-
-        <Col span={24} >
-          <img src={require('../assets/purple_dino_egg2.png')} height='200px' width='200px'  />
-          <TradeForm setChangeOrderRef={onChangeOrderRef} />
-          <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
-        </Col>
-
-        
       </Row>
     </>
   );
