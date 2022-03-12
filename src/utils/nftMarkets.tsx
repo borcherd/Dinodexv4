@@ -45,41 +45,10 @@ import tuple from 'immutable-tuple';
 import { useWallet } from './wallet';
 
 import markets from './markets.json';
-// Used in debugging, should be false in production
-const _IGNORE_DEPRECATED = false;
-// ook bij token-mints en markets (binnen serumdex) de tokens en markets bijzetten om unknown te voorkomen en balances te fixen
-const _MARKETS = [
-  {
-    name: 'DINO/USDC',
-    deprecated: false,
-    address: new PublicKey('AC11orBo1k5PFPyhjTj9o4KjcwD9b95hauSRtExy8eKv'),
-    programId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
-  },
-  // ...MARKETS,
-];
+import { NFT_MARKETS } from '../consts/markets.consts';
+import { SFT_TOKENS } from '../consts/tokens.consts';
 
-// todo add SFTs
-
-// MARKETS.forEach(item => {
-//   if (item.address.toBase58() === '5GAPymgnnWieGcRrcghZdA3aanefqa4cZx1ZSE8UTyMV') return
-//   if (_MARKETS.find(oldMarket => oldMarket.address.toBase58() === item.address.toBase58())) return
-
-//   if (item.address.toBase58() === '7MpMwArporUHEGW7quUpkPZp5L5cHPs9eKUfKCdaPHq2') {
-//     _MARKETS.push( {
-//       address: item.address,
-//       name: 'xCOPE/USDC',
-//       programId: item.programId,
-//       deprecated: item.deprecated,
-//     })
-//     return
-//   }
-
-//   _MARKETS.push(item)
-// })
-
-export const USE_MARKETS: MarketInfo[] = _IGNORE_DEPRECATED
-  ? _MARKETS.map((m) => ({ ...m, deprecated: false }))
-  : _MARKETS;
+export const USE_MARKETS: MarketInfo[] = NFT_MARKETS;
 
 export function useMarketsList() {
   return USE_MARKETS.filter(({ deprecated }) => !deprecated);
@@ -224,7 +193,7 @@ export function getMarketDetails(
     otherMarket.address.equals(market.address),
   );
 
-  Object.values(TOKENS).forEach((itemToken) => {
+  Object.values(SFT_TOKENS).forEach((itemToken) => {
     if (
       !TOKEN_MINTS.find(
         (item) => item.address.toString === itemToken.mintAddress,
@@ -265,73 +234,13 @@ export function useCustomMarkets() {
   return { customMarkets, setCustomMarkets };
 }
 
-export function MarketProvider({ marketAddress, setMarketAddress, children }) {
-  const { customMarkets, setCustomMarkets } = useCustomMarkets();
+export function MarketProvider({ children = null as any }) {
+  const [allMarkets] = useAllMarkets();
 
-  const address = marketAddress && new PublicKey(marketAddress);
   const connection = useConnection();
-  const marketInfos = getMarketInfos(customMarkets);
-  const marketInfo =
-    address && marketInfos.find((market) => market.address.equals(address));
-
-  const [market, setMarket] = useState<Market | null>();
-
-  const [marketName, setMarketName] = useState('DINO/USDC');
 
   const [localToken, setLocalToken] = useState(false);
   const [localMarket, setLocalMarket] = useState(false);
-
-  useEffect(() => {
-    const json = markets;
-
-    window.localStorage.setItem('apiMarket', JSON.stringify(json));
-    const marketData: { [programId: string]: { [market: string]: string } } =
-      (json ?? {}).data ?? {};
-    for (const [programId, marketDict] of Object.entries(marketData)) {
-      for (const [itemMarket, marketName] of Object.entries(marketDict)) {
-        if (!_MARKETS.find((item) => item.address.toString() === itemMarket)) {
-          _MARKETS.push({
-            name: marketName,
-            deprecated: false,
-            address: new PublicKey(itemMarket),
-            programId: new PublicKey(programId),
-          });
-        }
-      }
-    }
-    console.log('load market over');
-    setLocalMarket(true);
-  }, []);
-
-  useEffect(() => {
-    const localMarket = window.localStorage.getItem('apiMarket');
-    try {
-      if (localMarket === null) {
-        console.log('no local market');
-        return;
-      }
-      const marketData: { [programId: string]: { [market: string]: string } } =
-        (JSON.parse(localMarket) ?? {}).data ?? {};
-      for (const [programId, marketDict] of Object.entries(marketData)) {
-        for (const [itemMarket, marketName] of Object.entries(marketDict)) {
-          if (
-            !_MARKETS.find((item) => item.address.toString() === itemMarket)
-          ) {
-            _MARKETS.push({
-              name: marketName,
-              deprecated: false,
-              address: new PublicKey(itemMarket),
-              programId: new PublicKey(programId),
-            });
-          }
-        }
-      }
-      console.log('local market over');
-      setLocalMarket(true);
-    } catch (e) {
-      console.error('local market error', e);
-    }
-  }, []);
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -341,22 +250,19 @@ export function MarketProvider({ marketAddress, setMarketAddress, children }) {
     };
 
     fetchToken().then((json) => {
-      window.localStorage.setItem('apiToken', JSON.stringify(json));
       const tokenData: { [programId: string]: { [market: string]: string } } =
         (json ?? {}).data ?? {};
       for (const [mint, symbol] of Object.entries(tokenData)) {
         if (
-          TOKENS[mint] === undefined ||
-          !Object.values(TOKENS).find((item) => item.mintAddress === mint)
+          SFT_TOKENS[mint] === undefined ||
+          !Object.values(SFT_TOKENS).find((item) => item.mintAddress === mint)
         ) {
-          TOKENS[mint] = {
+          SFT_TOKENS[mint] = {
             symbol,
             mintAddress: mint,
           };
         }
       }
-      setLocalToken(true);
-      console.log('load token over');
     });
   }, []);
 
@@ -386,22 +292,6 @@ export function MarketProvider({ marketAddress, setMarketAddress, children }) {
     } catch (e) {
       console.error('local token error', e);
     }
-  }, []);
-
-  // Replace existing market with a non-deprecated one on first load
-  useEffect(() => {
-    if (marketInfo) {
-      if (marketInfo.deprecated) {
-        console.log('Switching markets from deprecated', marketInfo);
-        if (DEFAULT_MARKET) {
-          setMarketAddress(
-            DEFAULT_MARKET?.address?.toBase58() ||
-              'AC11orBo1k5PFPyhjTj9o4KjcwD9b95hauSRtExy8eKv',
-          );
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -464,21 +354,7 @@ export function getTradePageUrl(marketAddress?: string) {
       DEFAULT_MARKET?.address.toBase58() ||
       'AC11orBo1k5PFPyhjTj9o4KjcwD9b95hauSRtExy8eKv';
   }
-  return `/trade/market/${marketAddress}`;
-}
-
-export function getNftPageUrl(marketAddress?: string) {
-  if (!marketAddress) {
-    const saved = localStorage.getItem('marketAddress');
-    if (saved) {
-      marketAddress = JSON.parse(saved);
-    }
-    marketAddress =
-      marketAddress ||
-      DEFAULT_MARKET?.address.toBase58() ||
-      'AC11orBo1k5PFPyhjTj9o4KjcwD9b95hauSRtExy8eKv';
-  }
-  return `/nft/market/${marketAddress}`;
+  return `/market/${marketAddress}`;
 }
 
 export function useSelectedTokenAccounts(): [
@@ -754,12 +630,12 @@ export function useSelectedQuoteCurrencyBalances() {
 // TODO: Update to use websocket
 export function useSelectedBaseCurrencyBalances() {
   const baseCurrencyAccount = useSelectedBaseCurrencyAccount();
-  const { market } = ();
+  const { market } = useMarket();
   const [accountInfo, loaded] = useAccountInfo(baseCurrencyAccount?.pubkey);
   if (!market || !baseCurrencyAccount || !loaded || !accountInfo) {
     return null;
   }
-  if (market.baseMintAddressuseMarket.equals(TokenInstructions.WRAPPED_SOL_MINT)) {
+  if (market.baseMintAddress.equals(TokenInstructions.WRAPPED_SOL_MINT)) {
     return accountInfo?.lamports / 1e9 ?? 0;
   }
   return market.baseSplSizeToNumber(

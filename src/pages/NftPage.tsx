@@ -50,7 +50,7 @@ const Wrapper = styled.div`
 `;
 
 export default function NftPage() {
-  const { marketAddress } = useParams();
+  const marketAddress = 'AC11orBo1k5PFPyhjTj9o4KjcwD9b95hauSRtExy8eKv'; // page needs to support multiple markets so new marketprovider needs to be build
   useEffect(() => {
     if (marketAddress) {
       localStorage.setItem('marketAddress', JSON.stringify(marketAddress));
