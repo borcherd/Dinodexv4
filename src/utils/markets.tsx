@@ -58,25 +58,6 @@ const _MARKETS = [
   // ...MARKETS,
 ];
 
-// todo add SFTs
-
-// MARKETS.forEach(item => {
-//   if (item.address.toBase58() === '5GAPymgnnWieGcRrcghZdA3aanefqa4cZx1ZSE8UTyMV') return
-//   if (_MARKETS.find(oldMarket => oldMarket.address.toBase58() === item.address.toBase58())) return
-
-//   if (item.address.toBase58() === '7MpMwArporUHEGW7quUpkPZp5L5cHPs9eKUfKCdaPHq2') {
-//     _MARKETS.push( {
-//       address: item.address,
-//       name: 'xCOPE/USDC',
-//       programId: item.programId,
-//       deprecated: item.deprecated,
-//     })
-//     return
-//   }
-
-//   _MARKETS.push(item)
-// })
-
 export const USE_MARKETS: MarketInfo[] = _IGNORE_DEPRECATED
   ? _MARKETS.map((m) => ({ ...m, deprecated: false }))
   : _MARKETS;
@@ -753,13 +734,13 @@ export function useSelectedQuoteCurrencyBalances() {
 
 // TODO: Update to use websocket
 export function useSelectedBaseCurrencyBalances() {
-  const baseCurrencyAccount = useSelectedBaseCurrencyAccount();
-  const { market } = ();
+  const baseCurrencyAccount = useSelectedQuoteCurrencyAccount();
+  const { market } = useMarket();
   const [accountInfo, loaded] = useAccountInfo(baseCurrencyAccount?.pubkey);
   if (!market || !baseCurrencyAccount || !loaded || !accountInfo) {
     return null;
   }
-  if (market.baseMintAddressuseMarket.equals(TokenInstructions.WRAPPED_SOL_MINT)) {
+  if (market.baseMintAddress.equals(TokenInstructions.WRAPPED_SOL_MINT)) {
     return accountInfo?.lamports / 1e9 ?? 0;
   }
   return market.baseSplSizeToNumber(

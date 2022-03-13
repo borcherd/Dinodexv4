@@ -12,22 +12,23 @@ import {
   useMarketsList,
   useUnmigratedDeprecatedMarkets,
   getNftPageUrl,
-} from '../utils/markets';
+} from '../../utils/markets';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 
-import CustomMarketDialog from '../components/CustomMarketDialog';
-import DeprecatedMarketsInstructions from '../components/DeprecatedMarketsInstructions';
-import LinkAddress from '../components/LinkAddress';
-import { MarketInfo } from '../utils/types';
-import Orderbook from '../components/Orderbook';
-import StandaloneBalancesDisplay from '../components/StandaloneBalancesDisplay';
-import { TVChartContainer } from '../components/TradingView';
-import TradeForm from '../components/TradeForm';
-import TradesTable from '../components/TradesTable';
-import UserInfoTable from '../components/UserInfoTable';
-import { notify } from '../utils/notifications';
+import CustomMarketDialog from '../../components/CustomMarketDialog';
+import DeprecatedMarketsInstructions from '../../components/DeprecatedMarketsInstructions';
+import LinkAddress from '../../components/LinkAddress';
+import { MarketInfo } from '../../utils/types';
+import Orderbook from '../../components/Orderbook';
+import StandaloneBalancesDisplay from '../../components/StandaloneBalancesDisplay';
+import { TVChartContainer } from '../../components/TradingView';
+import TradeForm from '../../components/TradeForm';
+import TradesTable from '../../components/TradesTable';
+import UserInfoTable from '../../components/UserInfoTable';
+import { notify } from '../../utils/notifications';
 import styled from 'styled-components';
+import * as _consts from './NftMarketplace.consts';
 import { nanoid } from 'nanoid';
 
 const { Option, OptGroup } = Select;
@@ -69,65 +70,34 @@ export default function NftPage() {
           flexWrap: 'nowrap',
         }}
       >
-        <Col
-          flex="33%"
-          style={{
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            minWidth: '280px',
-            padding: '3%',    
-          }}
-        >
-          <MarketProvider
-            marketAddress={'BUWb1mFVUGSCxjQtZZFpvsKHs8rTbckUL1BBXDuhboUi'}
-            setMarketAddress={setMarketAddress}
-          >
-            <NftPageInner />
-          </MarketProvider>
-        </Col>
-
-        <Col
-          flex="33%"
-          style={{
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            minWidth: '280px',
-            padding: '3%',
-          }}
-        >
-          <MarketProvider
-            marketAddress={'9ZCHG16nsSdNZZiafhrD3TdNsGsr315WrwgHmcLvgxcT'}
-            setMarketAddress={setMarketAddress}
-          >
-            <NftPageInner />
-          </MarketProvider>
-        </Col>
-
-        <Col
-          flex="33%"
-          style={{
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            minWidth: '280px',
-            padding: '3%',
-          }}
-        >
-          <MarketProvider
-            marketAddress={'EpjbSu54Lx5TpVKX4iMpDo6eMk2fK5GoiNbP7rLU9WbN'}
-            setMarketAddress={setMarketAddress}
-          >
-            <NftPageInner />
-          </MarketProvider>
-        </Col>
+        {_consts.EGG_MARKETPLACES.map((value, idx) => {
+          return (
+            <Col
+              key={idx}
+              flex="33%"
+              style={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                minWidth: '280px',
+                padding: '3%',
+              }}
+            >
+              <MarketProvider
+                marketAddress={value.market}
+                setMarketAddress={setMarketAddress}
+              >
+                <NftPageInner imageSrc={value.eggAsset} />
+              </MarketProvider>
+            </Col>
+          );
+        })}
       </Row>
     </Wrapper>
   );
 }
 
-function NftPageInner() {
+function NftPageInner({ imageSrc }) {
   const {
     market,
     marketName,
@@ -155,6 +125,7 @@ function NftPageInner() {
   const width = dimensions?.width;
 
   const componentProps = {
+    imageSrc: imageSrc,
     onChangeOrderRef: (ref) => (changeOrderRef.current = ref),
     onPrice: useCallback(
       (price) => changeOrderRef.current && changeOrderRef.current({ price }),
@@ -179,11 +150,7 @@ function NftPageInner() {
     }
   })();
 
-  return (
-    <>
-      {component}
-    </>
-  );
+  return <>{component}</>;
 }
 
 const DeprecatedMarketsPage = ({ switchToLiveMarkets }) => {
@@ -200,7 +167,7 @@ const DeprecatedMarketsPage = ({ switchToLiveMarkets }) => {
   );
 };
 
-const RenderNormal = ({ onChangeOrderRef, onPrice, onSize }) => {
+const RenderNormal = ({ imageSrc, onChangeOrderRef, onPrice, onSize }) => {
   return (
     <Row
       style={{
@@ -216,11 +183,11 @@ const RenderNormal = ({ onChangeOrderRef, onPrice, onSize }) => {
           flexDirection: 'column',
           minWidth: '280px',
           padding: '3%',
-          alignItems:'center'
+          alignItems: 'center',
         }}
       >
         <label>egg</label>
-        <img src={require('../assets/blue_dino_egg2.png')} style={{height:'250px', width:'250px'}}/>
+        <img src={imageSrc} style={{ height: '250px', width: '250px' }} />
         <TradeForm setChangeOrderRef={onChangeOrderRef} />
         <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
       </Col>
@@ -228,16 +195,12 @@ const RenderNormal = ({ onChangeOrderRef, onPrice, onSize }) => {
   );
 };
 
-const RenderSmaller = ({ onChangeOrderRef, onPrice, onSize }) => {
+const RenderSmaller = ({ imageSrc, onChangeOrderRef, onPrice, onSize }) => {
   return (
     <>
       <Row>
         <Col span={24}>
-          <img
-            src={require('../assets/blue_dino_egg2.png')}
-            height="200px"
-            width="200px"
-          />
+          <img src={imageSrc} height="200px" width="200px" />
           <TradeForm setChangeOrderRef={onChangeOrderRef} />
           <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
         </Col>

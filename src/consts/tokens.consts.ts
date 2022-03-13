@@ -21,21 +21,18 @@ export const CUSTOM_TOKENS: Tokens = {
     mintAddress: '2TxM6S3ZozrBHZGHEPh9CtM74a9SVXbr7NQ7UxkRvQij',
     referrer: '33XpMmMQRf6tSPpmYyzpwU4uXpZHkFwCZsusD9dMYkjy', //WHAT is referrer?
   },
-};
-
-export const SFT_TOKENS: Tokens = {
-  'Blue DINOEGG NFT': {
+  EGG1: {
     symbol: 'Blue DINOEGG NFT',
     mintAddress: 'eg1eYgBvSLWZXor8VD1YA1DhYsbcCLURZEcFsYr52Vo',
     referrer: '33XpMmMQRf6tSPpmYyzpwU4uXpZHkFwCZsusD9dMYkjy',
   },
-  'Green DINOEGG NFT': {
-    symbol: 'Blue DINOEGG NFT',
+  EGG2: {
+    symbol: 'Green DINOEGG NFT',
     mintAddress: 'eg2QbDMzUi9F8R3SsW9rnRCg9bEGCs1hGvhS5PfVQTe',
     referrer: '33XpMmMQRf6tSPpmYyzpwU4uXpZHkFwCZsusD9dMYkjy',
   },
-  'Purple DINOEGG NFT': {
-    symbol: 'Blue DINOEGG NFT',
+  EGG3: {
+    symbol: 'Purple DINOEGG NFT',
     mintAddress: 'eg3mb8qBFwSdqL5Jrn8h5naeMgkxqA2YruJsEfCgcHL',
     referrer: '33XpMmMQRf6tSPpmYyzpwU4uXpZHkFwCZsusD9dMYkjy',
   },
