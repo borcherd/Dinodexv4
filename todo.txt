@@ -1,5 +1,4 @@
 Nftpage:
-    small screen wordt niet aangeroepen volgens mij
 Algemeen:
     project serum markets en token-mints aanpassen dat de tokens niet unknown blijven
     
