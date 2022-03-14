@@ -55,6 +55,30 @@ const _MARKETS = [
     address: new PublicKey('AC11orBo1k5PFPyhjTj9o4KjcwD9b95hauSRtExy8eKv'),
     programId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
   },
+  {
+    name: 'DINOEGG/USDC',
+    deprecated: false,
+    address: new PublicKey('wtePW13tTkiuFH2R8qgGLVBdEqXUin61VhZpBWBZDVs'),
+    programId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+  },
+  {
+    name: 'Blue DINOEGG NFT/USDC',
+    deprecated: true,
+    address: new PublicKey('EpjbSu54Lx5TpVKX4iMpDo6eMk2fK5GoiNbP7rLU9WbN'),
+    programId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+  }, 
+  {
+    name: 'Green DINOEGG NFT/USDC',
+    deprecated: true,
+    address: new PublicKey('BUWb1mFVUGSCxjQtZZFpvsKHs8rTbckUL1BBXDuhboUi'),
+    programId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+  },
+  {
+    name: 'Purple DINOEGG NFT/USDC',
+    deprecated: true,
+    address: new PublicKey('9ZCHG16nsSdNZZiafhrD3TdNsGsr315WrwgHmcLvgxcT'),
+    programId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+  },
   // ...MARKETS,
 ];
 

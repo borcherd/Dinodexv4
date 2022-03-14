@@ -25,9 +25,11 @@ import { TVChartContainer } from '../components/TradingView';
 import TradeForm from '../components/TradeForm';
 import TradesTable from '../components/TradesTable';
 import UserInfoTable from '../components/UserInfoTable';
+
 import { notify } from '../utils/notifications';
 import styled from 'styled-components';
 import { nanoid } from 'nanoid';
+import { Market } from '@project-serum/serum';
 
 const { Option, OptGroup } = Select;
 
@@ -119,6 +121,7 @@ function TradePageInner() {
       (size) => changeOrderRef.current && changeOrderRef.current({ size }),
       [],
     ),
+    market: market
   };
   const component = (() => {
     if (handleDeprecated) {
@@ -313,7 +316,7 @@ const DeprecatedMarketsPage = ({ switchToLiveMarkets }) => {
   );
 };
 
-const RenderNormal = ({ onChangeOrderRef, onPrice, onSize }) => {
+const RenderNormal = ({ onChangeOrderRef, onPrice, onSize, market }) => {
   return (
     <Row
       style={{
@@ -339,7 +342,7 @@ const RenderNormal = ({ onChangeOrderRef, onPrice, onSize }) => {
         style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
       >
         <TVChartContainer />
-        <UserInfoTable smallScreen={false} />
+        <UserInfoTable smallScreen={false} market={market}  />
       </Col>
 
       <Col flex="15%" style={{ height: '100%', minWidth: '280px' }}>
@@ -350,7 +353,7 @@ const RenderNormal = ({ onChangeOrderRef, onPrice, onSize }) => {
   );
 };
 
-const RenderSmaller = ({ onChangeOrderRef, onPrice, onSize }) => {
+const RenderSmaller = ({ onChangeOrderRef, onPrice, onSize, market }) => {
   return (
     <>
       <Row>
@@ -366,7 +369,7 @@ const RenderSmaller = ({ onChangeOrderRef, onPrice, onSize }) => {
         </Col>
 
         <Col span={24}>
-          <UserInfoTable smallScreen={true} />
+          <UserInfoTable smallScreen={true} market={market} />
         </Col>
 
         <Col xs={24} sm={12}>

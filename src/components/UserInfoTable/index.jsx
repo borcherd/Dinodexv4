@@ -5,10 +5,14 @@ import { Col, Row } from 'antd';
 import FillsTable from './FillsTable';
 import FloatingElement from '../layout/FloatingElement';
 import FeesTable from './FeesTable';
-import { useOpenOrders, useBalances, useMarket } from '../../utils/markets';
+import {
+  useOpenOrders,
+  useBalances,
+  useMarket,
+  MarketProvider,
+} from '../../utils/markets';
 
-export default function Index({ smallScreen }) {
-  const { market } = useMarket();
+export default function Index({ smallScreen, market }) {
   const [activeKeyStr, setActiveKeyStr] = useState('orders');
   if (smallScreen) {
     return (

@@ -42,24 +42,18 @@ const Wrapper = styled.div`
     rgba(48, 24, 50, 1) 100%
   );
   height: 100%;
-  display: flex;
+  display: 100%;
   flex-direction: column;
   padding: 16px 16px;
   .borderNone .ant-select-selector {
     border: none !important;
   }
+  align-items: center;
 `;
 
 export default function NftPage() {
-  const marketAddress = 'AC11orBo1k5PFPyhjTj9o4KjcwD9b95hauSRtExy8eKv'; // page needs to support multiple markets so new marketprovider needs to be build
-  useEffect(() => {
-    if (marketAddress) {
-      localStorage.setItem('marketAddress', JSON.stringify(marketAddress));
-    }
-  }, [marketAddress]);
-  const history = useHistory();
   function setMarketAddress(address) {
-    //vreemde format van market uithalen
+    console.log(address);
   }
 
   return (
@@ -81,13 +75,14 @@ export default function NftPage() {
                 flexDirection: 'column',
                 minWidth: '280px',
                 padding: '3%',
+                alignContent: 'center',
               }}
             >
               <MarketProvider
                 marketAddress={value.market}
                 setMarketAddress={setMarketAddress}
               >
-                <NftPageInner imageSrc={value.eggAsset} />
+                <NftPageInner imageSrc={value.eggAsset} market={value.market} />
               </MarketProvider>
             </Col>
           );
@@ -97,18 +92,11 @@ export default function NftPage() {
   );
 }
 
-function NftPageInner({ imageSrc }) {
-  const {
-    market,
-    marketName,
-    customMarkets,
-    setCustomMarkets,
-    setMarketAddress,
-  } = useMarket();
+function NftPageInner({ imageSrc, market }) {
+  const { marketName, customMarkets, setCustomMarkets, setMarketAddress } =
+    useMarket();
   // const markets = useMarketsList();
   const [handleDeprecated, setHandleDeprecated] = useState(false);
-  const [addMarketVisible, setAddMarketVisible] = useState(false);
-  const deprecatedMarkets = useUnmigratedDeprecatedMarkets();
   // const [dimensions, setDimensions] = useState({
   const [dimensions] = useState({
     height: window.innerHeight,
@@ -135,6 +123,7 @@ function NftPageInner({ imageSrc }) {
       (size) => changeOrderRef.current && changeOrderRef.current({ size }),
       [],
     ),
+    market: market,
   };
   const component = (() => {
     if (handleDeprecated) {
@@ -167,42 +156,41 @@ const DeprecatedMarketsPage = ({ switchToLiveMarkets }) => {
   );
 };
 
-const RenderNormal = ({ imageSrc, onChangeOrderRef, onPrice, onSize }) => {
+const RenderNormal = ({
+  imageSrc,
+  onChangeOrderRef,
+  onPrice,
+  onSize,
+  market,
+}) => {
   return (
-    <Row
-      style={{
-        minHeight: '500px',
-        flexWrap: 'nowrap',
-      }}
-    >
-      <Col
-        flex="33%"
-        style={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          minWidth: '280px',
-          padding: '3%',
-          alignItems: 'center',
-        }}
-      >
-        <label>egg</label>
-        <img src={imageSrc} style={{ height: '250px', width: '250px' }} />
-        <TradeForm setChangeOrderRef={onChangeOrderRef} />
-        <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
-      </Col>
-    </Row>
+    <>
+      <img
+        src={imageSrc}
+        style={{ height: '250px', width: '220PX', alignSelf: 'center' }}
+      />
+      <TradeForm setChangeOrderRef={onChangeOrderRef} />
+      <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
+      <UserInfoTable smallScreen={true} market={market} />
+    </>
   );
 };
 
-const RenderSmaller = ({ imageSrc, onChangeOrderRef, onPrice, onSize }) => {
+const RenderSmaller = ({
+  imageSrc,
+  onChangeOrderRef,
+  onPrice,
+  onSize,
+  market,
+}) => {
   return (
     <>
       <Row>
         <Col span={24}>
-          <img src={imageSrc} height="200px" width="200px" />
+          <img src={imageSrc} height="200px" width="175px" />
           <TradeForm setChangeOrderRef={onChangeOrderRef} />
           <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
+          <UserInfoTable smallScreen={true} market={market} />
         </Col>
       </Row>
     </>

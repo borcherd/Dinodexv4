@@ -1,7 +1,7 @@
 import { Col, Row, Menu } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import logo from '../assets/logo.svg';
+import logo from '../assets/logo.gif';
 import styled from 'styled-components';
 import { ENDPOINTS, useConnectionConfig } from '../utils/connection';
 import CustomClusterEndpointDialog from './CustomClusterEndpointDialog';
@@ -42,6 +42,10 @@ const MENU = [
   {
     title: 'NFTs',
     link: '/#/nft',
+  },
+  {
+    title: 'App',
+    link: 'https://app.solanadino.com/#/',
   },
 ];
 
@@ -116,13 +120,14 @@ export default function TopBar() {
     <Menu
       mode="horizontal"
       defaultSelectedKeys={['Trading']}
+      selectedKeys={[location.pathname]}
       style={{
         fontSize: '16px',
         display: 'flex',
         justifyContent: 'center',
         background: 'transparent',
+        alignItems:'center'
       }}
-      selectable={false}
     >
       {MENU.map((item) => {
         return (
@@ -153,9 +158,9 @@ export default function TopBar() {
           <Col flex="none">
             <LogoWrapper
               onClick={() => history.push(tradePageUrl)}
-              style={{ paddingLeft: 40 }}
             >
-              <img src={logo} alt="" style={{ width: 145, height: 40 }} />
+              <img src={logo} alt="" style={{ paddingLeft:'5px' }} />
+              {'DINO DEX'}
             </LogoWrapper>
           </Col>
           <Col flex="auto" style={{ textAlign: 'center' }}>
