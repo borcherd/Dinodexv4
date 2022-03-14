@@ -1,37 +1,12 @@
-import { Button, Col, Popover, Row, Select, Typography } from 'antd';
-import {
-  DeleteOutlined,
-  InfoCircleOutlined,
-  PlusCircleOutlined,
-} from '@ant-design/icons';
-import {
-  MarketProvider,
-  getMarketInfos,
-  getTradePageUrl,
-  useMarket,
-  useMarketsList,
-  useUnmigratedDeprecatedMarkets,
-  getNftPageUrl,
-} from '../../utils/markets';
+import { Col, Row } from 'antd';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
-
-import CustomMarketDialog from '../../components/CustomMarketDialog';
-import DeprecatedMarketsInstructions from '../../components/DeprecatedMarketsInstructions';
-import LinkAddress from '../../components/LinkAddress';
-import { MarketInfo } from '../../utils/types';
-import Orderbook from '../../components/Orderbook';
-import StandaloneBalancesDisplay from '../../components/StandaloneBalancesDisplay';
-import { TVChartContainer } from '../../components/TradingView';
-import TradeForm from '../../components/TradeForm';
-import TradesTable from '../../components/TradesTable';
-import UserInfoTable from '../../components/UserInfoTable';
-import { notify } from '../../utils/notifications';
 import styled from 'styled-components';
+import DeprecatedMarketsInstructions from '../../components/DeprecatedMarketsInstructions';
+import Orderbook from '../../components/Orderbook';
+import TradeForm from '../../components/TradeForm';
+import UserInfoTable from '../../components/UserInfoTable';
+import { MarketProvider, useMarket } from '../../utils/markets';
 import * as _consts from './NftMarketplace.consts';
-import { nanoid } from 'nanoid';
-
-const { Option, OptGroup } = Select;
 
 const Wrapper = styled.div`
   background: rgb(28, 28, 28);
@@ -52,65 +27,113 @@ const Wrapper = styled.div`
 `;
 
 export default function NftPage() {
-  function setMarketAddress(address) {
-    console.log(address);
-  }
-
-  return (
-    <Wrapper>
-      <Row
-        style={{
-          minHeight: '500px',
-          flexWrap: 'nowrap',
-        }}
-      >
-        {_consts.EGG_MARKETPLACES.map((value, idx) => {
-          return (
-            <Col
-              key={idx}
-              flex="33%"
-              style={{
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                minWidth: '280px',
-                padding: '3%',
-                alignContent: 'center',
-              }}
-            >
-              <MarketProvider
-                marketAddress={value.market}
-                setMarketAddress={setMarketAddress}
-              >
-                <NftPageInner imageSrc={value.eggAsset} market={value.market} />
-              </MarketProvider>
-            </Col>
-          );
-        })}
-      </Row>
-    </Wrapper>
-  );
-}
-
-function NftPageInner({ imageSrc, market }) {
-  const { marketName, customMarkets, setCustomMarkets, setMarketAddress } =
-    useMarket();
-  // const markets = useMarketsList();
-  const [handleDeprecated, setHandleDeprecated] = useState(false);
-  // const [dimensions, setDimensions] = useState({
   const [dimensions] = useState({
     height: window.innerHeight,
     width: window.innerWidth,
   });
 
+  const width = dimensions?.width;
+
+  function setMarketAddress(address) {
+    console.log(address);
+  }
+
+  if (width < 1000) {
+    return (
+      <Wrapper>
+        {_consts.EGG_MARKETPLACES.map((value, idx) => {
+          return (
+            <Row
+              style={{
+                minHeight: '500px',
+                flexWrap: 'nowrap',
+              }}
+            >
+              <Col
+                key={idx}
+                flex="100%"
+                style={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  minWidth: '280px',
+                  padding: '3%',
+                  alignContent: 'center',
+                }}
+              >
+                <MarketProvider
+                  marketAddress={value.market}
+                  setMarketAddress={setMarketAddress}
+                >
+                  <NftPageInner
+                    imageSrc={value.eggAsset}
+                    market={value.market}
+                    small={true}
+                  />
+                </MarketProvider>
+              </Col>
+            </Row>
+          );
+        })}
+      </Wrapper>
+    );
+  } else {
+    return (
+      <Wrapper>
+        <Row
+          style={{
+            minHeight: '500px',
+            flexWrap: 'nowrap',
+          }}
+        >
+          {_consts.EGG_MARKETPLACES.map((value, idx) => {
+            return (
+              <Col
+                key={idx}
+                flex="33%"
+                style={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  minWidth: '280px',
+                  padding: '3%',
+                  alignContent: 'center',
+                }}
+              >
+                <MarketProvider
+                  marketAddress={value.market}
+                  setMarketAddress={setMarketAddress}
+                >
+                  <NftPageInner
+                    imageSrc={value.eggAsset}
+                    market={value.market}
+                    small = {false}
+                  />
+                </MarketProvider>
+              </Col>
+            );
+          })}
+        </Row>
+      </Wrapper>
+    );
+  }
+}
+
+function NftPageInner({ imageSrc, market, small }) {
+  const { marketName, customMarkets, setCustomMarkets, setMarketAddress } =
+    useMarket();
+  // const markets = useMarketsList();
+  const [handleDeprecated, setHandleDeprecated] = useState(false);
+  // const [dimensions, setDimensions] = useState({
+  
+
   useEffect(() => {
-    document.title = marketName ? `${marketName} — DinoDex` : 'Dino';
+    document.title = marketName ? `SFT Marketplace — DinoDex` : 'Dino';
   }, [marketName]);
 
   const changeOrderRef =
     useRef<({ size, price }: { size?: number; price?: number }) => void>();
 
-  const width = dimensions?.width;
 
   const componentProps = {
     imageSrc: imageSrc,
@@ -132,7 +155,7 @@ function NftPageInner({ imageSrc, market }) {
           switchToLiveMarkets={() => setHandleDeprecated(false)}
         />
       );
-    } else if (width < 1000) {
+    } else if (small) {
       return <RenderSmaller {...componentProps} />;
     } else {
       return <RenderNormal {...componentProps} />;
@@ -167,7 +190,7 @@ const RenderNormal = ({
     <>
       <img
         src={imageSrc}
-        style={{ height: '250px', width: '220PX', alignSelf: 'center' }}
+        style={{ height: '250px', width: '210PX', alignSelf: 'center' }}
       />
       <TradeForm setChangeOrderRef={onChangeOrderRef} />
       <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
@@ -185,14 +208,10 @@ const RenderSmaller = ({
 }) => {
   return (
     <>
-      <Row>
-        <Col span={24}>
-          <img src={imageSrc} height="200px" width="175px" />
+          <img src={imageSrc} style={{ height: '200px', width: '175px', alignSelf: 'center' }}/>
           <TradeForm setChangeOrderRef={onChangeOrderRef} />
           <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
           <UserInfoTable smallScreen={true} market={market} />
-        </Col>
-      </Row>
     </>
   );
 };
