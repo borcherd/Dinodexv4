@@ -54,8 +54,9 @@ input[type=number]:focus::-webkit-inner-spin-button {
 .ant-divider-horizontal.ant-divider-with-text::before, .ant-divider-horizontal.ant-divider-with-text::after {
   border-top: 1px solid #434a59 !important;
 }
-.ant-layout {
-    background: #11161D
+.ant-layout { 
+  background: rgb(28, 28, 28);
+  
   }
   .ant-table {
     background: #212734;
@@ -69,7 +70,8 @@ input[type=number]:focus::-webkit-inner-spin-button {
   }
 }
 .ant-modal-content {
-  background-color: #212734;
+  background: rgb(28, 28, 28);
+  
 }
 
 @-webkit-keyframes highlight {

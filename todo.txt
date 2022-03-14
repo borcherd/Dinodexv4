@@ -2,9 +2,5 @@ Nftpage:
     small screen wordt niet aangeroepen volgens mij
 Algemeen:
     project serum markets en token-mints aanpassen dat de tokens niet unknown blijven
-    logo fixen
-    topbar alignment
-    kleuren van underlines aanpassen
-    trading blijft underlined, ookal wordt er genavigeerd naar Nftpage
     
 

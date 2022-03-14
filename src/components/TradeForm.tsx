@@ -311,7 +311,7 @@ export default function TradeForm({
               width: '50%',
               textAlign: 'center',
               border: 'transparent',
-              borderBottom: side === 'buy' ? '2px solid #5AC4BE' : '2px solid #1C274F',
+              borderBottom: side === 'buy' ? '2px solid #D44EB7' : '2px solid #1C274F',
               background: 'transparent',
               fontSize: 14,
               fontStyle: 'normal',
@@ -330,7 +330,7 @@ export default function TradeForm({
               width: '50%',
               textAlign: 'center',
               border: 'transparent',
-              borderBottom: side === 'sell' ? '2px solid #5AC4BE' : '2px solid #1C274F',
+              borderBottom: side === 'sell' ? '2px solid #D44EB7' : '2px solid #1C274F',
               background: 'transparent',
               fontSize: 14,
               fontStyle: 'normal',
@@ -456,7 +456,7 @@ export default function TradeForm({
               marginTop: 20,
               height: 41,
               background: 'rgba(90, 196, 190, 0.1)',
-              border: '1px solid #5AC4BE',
+              border: '1px solid #D44EB7',
               borderRadius: 4,
             }}
           >

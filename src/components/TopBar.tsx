@@ -163,7 +163,7 @@ export default function TopBar() {
               {'DINO DEX'}
             </LogoWrapper>
           </Col>
-          <Col flex="auto" style={{ textAlign: 'center' }}>
+          <Col flex="auto" style={{ alignContent: 'center' }}>
             {menuDiv}
           </Col>
           <Col flex="none" style={{ paddingRight: 20 }}>

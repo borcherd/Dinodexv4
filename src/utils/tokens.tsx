@@ -263,7 +263,7 @@ export const TOKENS: Tokens = {
     referrer: '33XpMmMQRf6tSPpmYyzpwU4uXpZHkFwCZsusD9dMYkjy',
   },
   DINOEGG: {
-    symbol: 'DINO',
+    symbol: 'DINOEGG',
     mintAddress: '2TxM6S3ZozrBHZGHEPh9CtM74a9SVXbr7NQ7UxkRvQij',
     referrer: '33XpMmMQRf6tSPpmYyzpwU4uXpZHkFwCZsusD9dMYkjy',
   },

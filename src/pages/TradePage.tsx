@@ -91,7 +91,7 @@ function TradePageInner() {
   });
 
   useEffect(() => {
-    document.title = marketName ? `${marketName} — Raydium` : 'Raydium';
+    document.title = marketName ? `${marketName} — DINODEX` : 'DINODEX';
   }, [marketName]);
 
   const changeOrderRef =
