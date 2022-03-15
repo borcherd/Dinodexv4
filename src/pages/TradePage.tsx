@@ -11,6 +11,7 @@ import {
   useMarket,
   useMarketsList,
   useUnmigratedDeprecatedMarkets,
+  useMarkPrice,
 } from '../utils/markets';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
@@ -84,6 +85,8 @@ function TradePageInner() {
   const [handleDeprecated, setHandleDeprecated] = useState(false);
   const [addMarketVisible, setAddMarketVisible] = useState(false);
   const deprecatedMarkets = useUnmigratedDeprecatedMarkets();
+  const markPrice = useMarkPrice();
+
   // const [dimensions, setDimensions] = useState({
   const [dimensions] = useState({
     height: window.innerHeight,
@@ -121,7 +124,7 @@ function TradePageInner() {
       (size) => changeOrderRef.current && changeOrderRef.current({ size }),
       [],
     ),
-    market: market
+    market: market,
   };
   const component = (() => {
     if (handleDeprecated) {
@@ -180,6 +183,10 @@ function TradePageInner() {
               customMarkets={customMarkets}
               onDeleteCustomMarket={onDeleteCustomMarket}
             />
+          </Col>
+          <Col>
+            <Row>Price</Row>
+            <Row>{markPrice!=null?'$ ' + markPrice:''}</Row>
           </Col>
         </Row>
         {component}
@@ -327,7 +334,7 @@ const RenderNormal = ({ onChangeOrderRef, onPrice, onSize, market }) => {
         style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
       >
         <TVChartContainer />
-        <UserInfoTable smallScreen={false} market={market}  />
+        <UserInfoTable smallScreen={false} market={market} />
       </Col>
 
       <Col flex="15%" style={{ height: '100%', minWidth: '280px' }}>
