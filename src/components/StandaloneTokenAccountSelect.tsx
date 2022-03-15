@@ -66,16 +66,6 @@ export default function StandaloneTokenAccountsSelect({
           ))}
         </Select>
       </Col>
-      <Col span={2} offset={1}>
-        <Button
-          shape="round"
-          icon={<CopyOutlined />}
-          size={'small'}
-          onClick={() =>
-            selectedValue && navigator.clipboard.writeText(selectedValue)
-          }
-        />
-      </Col>
     </React.Fragment>
   );
 }

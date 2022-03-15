@@ -1,5 +1,3 @@
-Nftpage:
-Algemeen:
-    project serum markets en token-mints aanpassen dat de tokens niet unknown blijven
-    
-
+wallet balance nft page
+ticker chart
+nft of sft marketplace?
