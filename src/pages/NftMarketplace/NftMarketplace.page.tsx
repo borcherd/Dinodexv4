@@ -1,11 +1,12 @@
 import { Col, Row } from 'antd';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { useWallet } from 'utils/wallet';
 import DeprecatedMarketsInstructions from '../../components/DeprecatedMarketsInstructions';
 import Orderbook from '../../components/Orderbook';
 import TradeForm from '../../components/TradeForm';
 import UserInfoTable from '../../components/UserInfoTable';
-import { MarketProvider, useMarket } from '../../utils/markets';
+import { MarketProvider, useBalances, useMarket } from '../../utils/markets';
 import * as _consts from './NftMarketplace.consts';
 
 const Wrapper = styled.div`
@@ -107,7 +108,7 @@ export default function NftPage() {
                   <NftPageInner
                     imageSrc={value.eggAsset}
                     market={value.market}
-                    small = {false}
+                    small={false}
                   />
                 </MarketProvider>
               </Col>
@@ -120,12 +121,21 @@ export default function NftPage() {
 }
 
 function NftPageInner({ imageSrc, market, small }) {
-  const { marketName, customMarkets, setCustomMarkets, setMarketAddress } =
-    useMarket();
+  const {
+    marketName,
+    customMarkets,
+    setCustomMarkets,
+    setMarketAddress,
+    baseCurrency,
+    quoteCurrency,
+  } = useMarket();
   // const markets = useMarketsList();
   const [handleDeprecated, setHandleDeprecated] = useState(false);
   // const [dimensions, setDimensions] = useState({
-  
+
+  const balances = useBalances();
+  const baseCurrencyBalances =
+    balances && balances.find((b) => b.coin === baseCurrency);
 
   useEffect(() => {
     document.title = marketName ? `SFT Marketplace — DinoDex` : 'Dino';
@@ -133,7 +143,6 @@ function NftPageInner({ imageSrc, market, small }) {
 
   const changeOrderRef =
     useRef<({ size, price }: { size?: number; price?: number }) => void>();
-
 
   const componentProps = {
     imageSrc: imageSrc,
@@ -147,6 +156,7 @@ function NftPageInner({ imageSrc, market, small }) {
       [],
     ),
     market: market,
+    baseCurrencyBalances: baseCurrencyBalances,
   };
   const component = (() => {
     if (handleDeprecated) {
@@ -185,9 +195,28 @@ const RenderNormal = ({
   onPrice,
   onSize,
   market,
+  baseCurrencyBalances,
 }) => {
+  const { connected } = useWallet();
   return (
     <>
+      {connected && (
+        <label
+          style={{
+            alignSelf: 'center',
+            padding: '15px',
+            marginBottom:'20px',
+            background: 'rgba(90, 196, 190, 0.1)',
+            border: '1px solid #D44EB7',
+            borderRadius: 4,
+          }}
+        >
+          Wallet Balance:{' '}
+          {baseCurrencyBalances?.wallet == null
+            ? 0
+            : baseCurrencyBalances?.wallet}
+        </label>
+      )}
       <img
         src={imageSrc}
         style={{ height: '250px', width: '210PX', alignSelf: 'center' }}
@@ -205,13 +234,33 @@ const RenderSmaller = ({
   onPrice,
   onSize,
   market,
+  baseCurrencyBalances,
 }) => {
+  const { connected } = useWallet();
   return (
     <>
-          <img src={imageSrc} style={{ height: '200px', width: '175px', alignSelf: 'center' }}/>
-          <TradeForm setChangeOrderRef={onChangeOrderRef} />
-          <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
-          <UserInfoTable smallScreen={true} market={market} />
+      {connected && (
+        <label style={{
+          alignSelf: 'center',
+          padding: '15px',
+          marginBottom:'20px',
+          background: 'rgba(90, 196, 190, 0.1)',
+          border: '1px solid #D44EB7',
+          borderRadius: 4,
+        }}>
+          Wallet Balance:{' '}
+          {baseCurrencyBalances?.wallet == null
+            ? 0
+            : baseCurrencyBalances?.wallet}
+        </label>
+      )}
+      <img
+        src={imageSrc}
+        style={{ height: '200px', width: '175px', alignSelf: 'center' }}
+      />
+      <TradeForm setChangeOrderRef={onChangeOrderRef} />
+      <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
+      <UserInfoTable smallScreen={true} market={market} />
     </>
   );
 };

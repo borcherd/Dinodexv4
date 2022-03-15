@@ -18,19 +18,19 @@ export const TOKEN_MARKETS: MarketInfo[] = [
 
 export const NFT_MARKETS: MarketInfo[] = [
   {
-    name: 'Blue DINOEGG NFT/USDC',
+    name: 'Blue DINOEGG SFT/USDC',
     deprecated: false,
     address: new PublicKey('EpjbSu54Lx5TpVKX4iMpDo6eMk2fK5GoiNbP7rLU9WbN'),
     programId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
   },
   {
-    name: 'Green DINOEGG NFT/USDC',
+    name: 'Green DINOEGG SFT/USDC',
     deprecated: false,
     address: new PublicKey('BUWb1mFVUGSCxjQtZZFpvsKHs8rTbckUL1BBXDuhboUi'),
     programId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
   },
   {
-    name: 'Purple DINOEGG NFT/USDC',
+    name: 'Purple DINOEGG SFT/USDC',
     deprecated: false,
     address: new PublicKey('9ZCHG16nsSdNZZiafhrD3TdNsGsr315WrwgHmcLvgxcT'),
     programId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),

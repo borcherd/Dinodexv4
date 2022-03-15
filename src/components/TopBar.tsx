@@ -40,8 +40,8 @@ const MENU = [
     link: 'https://app.step.finance',
   },
   {
-    title: 'NFTs',
-    link: '/#/nft',
+    title: 'SFTs',
+    link: '/#/sft',
   },
   {
     title: 'App',

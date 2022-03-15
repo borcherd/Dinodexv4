@@ -45,7 +45,7 @@ export default function StandaloneBalancesDisplay() {
     balances && balances.find((b) => b.coin === baseCurrency);
   const quoteCurrencyBalances =
     balances && balances.find((b) => b.coin === quoteCurrency);
-
+  
   async function onSettleFunds() {
     if (!wallet) {
       notify({

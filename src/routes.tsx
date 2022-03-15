@@ -24,10 +24,10 @@ export function Routes() {
             <Route exact path="/trade/market/:marketAddress">
               <TradePage />
             </Route>
-            <Route exact path="/nft/market/:marketAddress">
+            <Route exact path="/sft/market/:marketAddress">
               <NftPage />
             </Route>
-            <Route exact path="/nft" component={NftPage}></Route>
+            <Route exact path="/sft" component={NftPage}></Route>
             <Route exact path="/orders" component={OpenOrdersPage} />
             <Route exact path="/balances" component={BalancesPage} />
             <Route exact path="/convert" component={ConvertPage} />
