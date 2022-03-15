@@ -181,21 +181,6 @@ function TradePageInner() {
               onDeleteCustomMarket={onDeleteCustomMarket}
             />
           </Col>
-          {deprecatedMarkets && deprecatedMarkets.length > 0 && (
-            <React.Fragment>
-              <Col>
-                <Typography>
-                  You have unsettled funds on old markets! Please go through
-                  them to claim your funds.
-                </Typography>
-              </Col>
-              <Col>
-                <Button onClick={() => setHandleDeprecated(!handleDeprecated)}>
-                  {handleDeprecated ? 'View new markets' : 'Handle old markets'}
-                </Button>
-              </Col>
-            </React.Fragment>
-          )}
         </Row>
         {component}
       </Wrapper>

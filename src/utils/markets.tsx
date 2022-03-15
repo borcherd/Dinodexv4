@@ -14,8 +14,7 @@ import {
   Market,
   OpenOrders,
   Orderbook,
-  TOKEN_MINTS,
-  TokenInstructions,
+  TokenInstructions
 } from '@project-serum/serum';
 import React, { useContext, useEffect, useState } from 'react';
 import { getCache, setCache } from './fetch-loop';
@@ -44,9 +43,22 @@ import { sleep } from './utils';
 import tuple from 'immutable-tuple';
 import { useWallet } from './wallet';
 
-import markets from './markets.json';
+import markets from '../consts/markets.json';
+import TOKEN_MINTS from '../consts/token_mints.json';
+import { IToken } from 'models';
 // Used in debugging, should be false in production
 const _IGNORE_DEPRECATED = false;
+
+const tokens: IToken[] = []
+TOKEN_MINTS.map((value, idx) => {
+  const x: IToken = {
+    address: new PublicKey(value.address),
+    name: value.name
+  }
+  tokens.push(x)
+})
+
+
 // ook bij token-mints en markets (binnen serumdex) de tokens en markets bijzetten om unknown te voorkomen en balances te fixen
 const _MARKETS = [
   {
@@ -231,11 +243,11 @@ export function getMarketDetails(
 
   Object.values(TOKENS).forEach((itemToken) => {
     if (
-      !TOKEN_MINTS.find(
+      !tokens.find(
         (item) => item.address.toString === itemToken.mintAddress,
       )
     ) {
-      TOKEN_MINTS.push({
+      tokens.push({
         address: new PublicKey(itemToken.mintAddress),
         name: itemToken.symbol,
       });
@@ -244,13 +256,13 @@ export function getMarketDetails(
 
   const baseCurrency =
     (market?.baseMintAddress &&
-      TOKEN_MINTS.find((token) => token.address.equals(market.baseMintAddress))
+      tokens.find((token) => token.address.equals(market.baseMintAddress))
         ?.name) ||
     (marketInfo?.baseLabel && `${marketInfo?.baseLabel}*`) ||
     'UNKNOWN';
   const quoteCurrency =
     (market?.quoteMintAddress &&
-      TOKEN_MINTS.find((token) => token.address.equals(market.quoteMintAddress))
+      tokens.find((token) => token.address.equals(market.quoteMintAddress))
         ?.name) ||
     (marketInfo?.quoteLabel && `${marketInfo?.quoteLabel}*`) ||
     'UNKNOWN';
@@ -758,7 +770,7 @@ export function useSelectedQuoteCurrencyBalances() {
 
 // TODO: Update to use websocket
 export function useSelectedBaseCurrencyBalances() {
-  const baseCurrencyAccount = useSelectedQuoteCurrencyAccount();
+  const baseCurrencyAccount = useSelectedBaseCurrencyAccount();
   const { market } = useMarket();
   const [accountInfo, loaded] = useAccountInfo(baseCurrencyAccount?.pubkey);
   if (!market || !baseCurrencyAccount || !loaded || !accountInfo) {
