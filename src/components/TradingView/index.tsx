@@ -1,6 +1,6 @@
 import './index.css';
 
-import * as React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import * as saveLoadAdapter from './saveLoadAdapter';
 
 import {
@@ -38,17 +38,11 @@ export interface ChartContainerState {}
 export const TVChartContainer = () => {
   let datafeed = useTvDataFeed();
   let resolution = window.localStorage.getItem('resolution') ?? '60'
-
-  try {
-    convertResolutionToApi(resolution)
-  } catch(e) {
-    resolution = '60'
-  }
   
   const defaultProps: ChartContainerProps = {
     symbol: 'RAY/USDT',
     // @ts-ignore
-    interval: resolution ? resolution : '60',
+    interval: '60',
     auto_save_delay: 5,
     theme: 'Dark',
     containerId: 'tv_chart_container',
@@ -63,14 +57,14 @@ export const TVChartContainer = () => {
     timeframe: '1D'
   };
 
-  const tvWidgetRef = React.useRef<IChartingLibraryWidget | null>(null);
+  const tvWidgetRef = useRef<IChartingLibraryWidget | null>(null);
   const { marketName } = useMarket();
 
   const chartProperties = JSON.parse(
     localStorage.getItem('chartproperties') || '{}',
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     const savedProperties = flatten(chartProperties, {
       restrictTo: ['scalesProperties', 'paneProperties', 'tradingProperties'],
     });
@@ -144,6 +138,6 @@ export const TVChartContainer = () => {
         // @ts-ignore
         .subscribe('onAutoSaveNeeded', () => tvWidget.saveChartToServer());
     });
-  }, [chartProperties, datafeed, defaultProps.autosize, defaultProps.clientId, defaultProps.containerId, defaultProps.fullscreen, defaultProps.interval, defaultProps.libraryPath, defaultProps.studiesOverrides, defaultProps.theme, defaultProps.userId, marketName]);
+  }, [marketName]);
   return <div style={{ height: window.innerWidth < 1000 ? '50vh' : 540 }} id={defaultProps.containerId} className={'TVChartContainer'} />;
 };

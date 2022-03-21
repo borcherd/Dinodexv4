@@ -3,7 +3,9 @@ import { useMemo } from 'react';
 import { USE_MARKETS } from './markets';
 import { sleep } from './utils';
 
-const URL_SERVER = 'https://api.raydium.io/v1/dex/tv/';
+ const URL_SERVER = 'https://api.raydium.io/v1/dex/tv/';
+//const URL_SERVER = 'https://serum-dinodex-chart-api.herokuapp.com/tv/';
+// const URL_SERVER = 'https://event-history-api-candles.herokuapp.com/tv/';
 
 export const useTvDataFeed = () => {
   return useMemo(() => makeDataFeed(), []);
@@ -77,6 +79,7 @@ const makeDataFeed = () => {
         onResolveErrorCallback();
         return;
       }
+      
       if (result.name !== marketInfo.name) {
         if (result.name.includes('unknown')) {
           result.name = marketInfo.name
@@ -128,7 +131,11 @@ const makeDataFeed = () => {
       try {
         const result = await getApi(
           `${URL_SERVER}history?market=${symbolInfo.market}&resolution=${resolution}&from_time=${from}&to_time=${to}`
-        )
+        ) 
+        /* resolution = String(resolution).substring(0,1)
+        const result = await getApi(
+          `${URL_SERVER}history?market=${symbolInfo.market}&resolution=${resolution}&from_time=${from}&to_time=${to}`
+        )  */
 
         if (result.c.length === 0 ) {
           overTime[key] = to
@@ -157,10 +164,10 @@ const makeDataFeed = () => {
       subscriptions[subscriberUID] = { stop: () => (stopped = true) };
 
       while (!stopped) {
-        await sleep(2000);
+        await sleep(20000);
         for (let i = 0; i < 10; ++i) {
           if (document.visibilityState !== 'visible') {
-            await sleep(2000);
+            await sleep(20000);
           }
         }
         if (stopped) {
@@ -188,7 +195,7 @@ const makeDataFeed = () => {
           continue;
         } catch (e) {
           console.warn(e);
-          await sleep(10000);
+          await sleep(100000);
           continue;
         }
       }
