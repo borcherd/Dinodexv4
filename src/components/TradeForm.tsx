@@ -128,34 +128,6 @@ export default function TradeForm({
     return () => clearInterval(id);
   }, [market, sendConnection, wallet, walletPubkey]);
 
-  // useInterval(() => {
-  //   const autoSettle = async () => {
-  //     if (!wallet || !market || !openOrdersAccount || !baseCurrencyAccount || !quoteCurrencyAccount ||
-  //       openOrdersAccount?.baseTokenFree.toNumber() <= 0 || openOrdersAccount.quoteTokenFree.toNumber() <= 0) {
-  //       return;
-  //     }
-  //     try {
-  //       // settle funds into selected token wallets
-  //       await settleFunds({
-  //         market,
-  //         openOrders: openOrdersAccount,
-  //         connection: sendConnection,
-  //         wallet,
-  //         baseCurrencyAccount,
-  //         quoteCurrencyAccount
-  //       });
-  //     } catch (e) {
-  //       console.log('Error auto settling funds: ' + e.message);
-  //     }
-  //   };
-  //   (
-  //     connected &&
-  //     wallet?.autoApprove &&
-  //     autoSettleEnabled &&
-  //     autoSettle()
-  //   );
-  // }, 10000);
-
   const onSetBaseSize = (baseSize: number | undefined) => {
     setBaseSize(baseSize);
     if (!baseSize) {
@@ -506,7 +478,7 @@ export default function TradeForm({
               borderRadius: 4,
             }}
           >
-            LIMIT {side.toUpperCase()} {baseCurrency}
+            {side.toUpperCase()} {baseCurrency}
           </BuyButton>
         </div>
       </div>

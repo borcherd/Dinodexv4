@@ -1,17 +1,17 @@
-import './index.css';
-
-import React, { useRef, useState, useEffect } from 'react';
-import * as saveLoadAdapter from './saveLoadAdapter';
-
+import React, { useEffect, useRef } from 'react';
 import {
   ChartingLibraryWidgetOptions,
   IChartingLibraryWidget,
-  widget,
+  widget
 } from '../../charting_library';
-
-import { flatten } from '../../utils/utils';
+import { useTvDataFeed } from '../../utils/Datafeed';
 import { useMarket } from '../../utils/markets';
-import { convertResolutionToApi, useTvDataFeed } from '../../utils/Datafeed';
+import { flatten } from '../../utils/utils';
+import './index.css';
+import * as saveLoadAdapter from './saveLoadAdapter';
+
+
+
 
 export interface ChartContainerProps {
   symbol: ChartingLibraryWidgetOptions['symbol'];

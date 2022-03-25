@@ -121,17 +121,8 @@ export default function NftPage() {
 }
 
 function NftPageInner({ imageSrc, market, small }) {
-  const {
-    marketName,
-    customMarkets,
-    setCustomMarkets,
-    setMarketAddress,
-    baseCurrency,
-    quoteCurrency,
-  } = useMarket();
-  // const markets = useMarketsList();
+  const { marketName, baseCurrency } = useMarket();
   const [handleDeprecated, setHandleDeprecated] = useState(false);
-  // const [dimensions, setDimensions] = useState({
 
   const balances = useBalances();
   const baseCurrencyBalances =
@@ -205,7 +196,7 @@ const RenderNormal = ({
           style={{
             alignSelf: 'center',
             padding: '15px',
-            marginBottom:'20px',
+            marginBottom: '20px',
             background: 'rgba(90, 196, 190, 0.1)',
             border: '1px solid #D44EB7',
             borderRadius: 4,
@@ -240,14 +231,16 @@ const RenderSmaller = ({
   return (
     <>
       {connected && (
-        <label style={{
-          alignSelf: 'center',
-          padding: '15px',
-          marginBottom:'20px',
-          background: 'rgba(90, 196, 190, 0.1)',
-          border: '1px solid #D44EB7',
-          borderRadius: 4,
-        }}>
+        <label
+          style={{
+            alignSelf: 'center',
+            padding: '15px',
+            marginBottom: '20px',
+            background: 'rgba(90, 196, 190, 0.1)',
+            border: '1px solid #D44EB7',
+            borderRadius: 4,
+          }}
+        >
           Wallet Balance:{' '}
           {baseCurrencyBalances?.wallet == null
             ? 0

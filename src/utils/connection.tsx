@@ -1,9 +1,9 @@
-import { useLocalStorageState } from './utils';
 import { Account, AccountInfo, Connection, PublicKey } from '@solana/web3.js';
+import tuple from 'immutable-tuple';
 import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import { setCache, useAsyncData } from './fetch-loop';
-import tuple from 'immutable-tuple';
 import { ConnectionContextValues, EndpointInfo } from './types';
+import { useLocalStorageState } from './utils';
 
 
 export const endpoints = [

@@ -1,23 +1,22 @@
 import { Button, Col, Row } from 'antd';
 import React, { useState } from 'react';
-import FloatingElement from './layout/FloatingElement';
 import styled from 'styled-components';
+import { useSendConnection } from '../utils/connection';
 import {
   useBalances,
   useMarket,
   useSelectedBaseCurrencyAccount,
   useSelectedOpenOrdersAccount,
   useSelectedQuoteCurrencyAccount,
-  useTokenAccounts,
+  useTokenAccounts
 } from '../utils/markets';
-import DepositDialog from './DepositDialog';
-import { useWallet } from '../utils/wallet';
-import { settleFunds } from '../utils/send';
-import { useSendConnection } from '../utils/connection';
 import { notify } from '../utils/notifications';
+import { settleFunds } from '../utils/send';
 import { Balances } from '../utils/types';
+import { useWallet } from '../utils/wallet';
+import DepositDialog from './DepositDialog';
+import FloatingElement from './layout/FloatingElement';
 import StandaloneTokenAccountsSelect from './StandaloneTokenAccountSelect';
-import logo1 from '../assets/logo1.svg';
 
 const RowBox = styled(Row)`
   padding-bottom: 20px;

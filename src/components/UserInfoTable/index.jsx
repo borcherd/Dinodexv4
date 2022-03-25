@@ -1,16 +1,11 @@
-import BalancesTable from './BalancesTable';
-import OpenOrderTable from './OpenOrderTable';
-import React, { useState } from 'react';
 import { Col, Row } from 'antd';
-import FillsTable from './FillsTable';
+import React, { useState } from 'react';
+import { useBalances, useOpenOrders } from '../../utils/markets';
 import FloatingElement from '../layout/FloatingElement';
+import BalancesTable from './BalancesTable';
 import FeesTable from './FeesTable';
-import {
-  useOpenOrders,
-  useBalances,
-  useMarket,
-  MarketProvider,
-} from '../../utils/markets';
+import FillsTable from './FillsTable';
+import OpenOrderTable from './OpenOrderTable';
 
 export default function Index({ smallScreen, market }) {
   const [activeKeyStr, setActiveKeyStr] = useState('orders');
