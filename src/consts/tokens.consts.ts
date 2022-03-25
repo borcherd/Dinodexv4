@@ -22,17 +22,17 @@ export const CUSTOM_TOKENS: Tokens = {
     referrer: '33XpMmMQRf6tSPpmYyzpwU4uXpZHkFwCZsusD9dMYkjy', //WHAT is referrer?
   },
   EGG1: {
-    symbol: 'Blue DINOEGG SFT',
+    symbol: 'BLUE DINOEGG SFT',
     mintAddress: 'eg1eYgBvSLWZXor8VD1YA1DhYsbcCLURZEcFsYr52Vo',
     referrer: '33XpMmMQRf6tSPpmYyzpwU4uXpZHkFwCZsusD9dMYkjy',
   },
   EGG2: {
-    symbol: 'Green DINOEGG SFT',
+    symbol: 'GREEN DINOEGG SFT',
     mintAddress: 'eg2QbDMzUi9F8R3SsW9rnRCg9bEGCs1hGvhS5PfVQTe',
     referrer: '33XpMmMQRf6tSPpmYyzpwU4uXpZHkFwCZsusD9dMYkjy',
   },
   EGG3: {
-    symbol: 'Purple DINOEGG SFT',
+    symbol: 'PURPLE DINOEGG SFT',
     mintAddress: 'eg3mb8qBFwSdqL5Jrn8h5naeMgkxqA2YruJsEfCgcHL',
     referrer: '33XpMmMQRf6tSPpmYyzpwU4uXpZHkFwCZsusD9dMYkjy',
   },

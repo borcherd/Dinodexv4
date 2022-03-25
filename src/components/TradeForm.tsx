@@ -20,8 +20,12 @@ import styled from 'styled-components';
 import tuple from 'immutable-tuple';
 import { useSendConnection } from '../utils/connection';
 import { useWallet } from '../utils/wallet';
-import {floorToDecimal, getDecimalCount, roundToDecimal,} from '../utils/utils';
-import {getUnixTs, placeOrder} from '../utils/send';
+import {
+  floorToDecimal,
+  getDecimalCount,
+  roundToDecimal,
+} from '../utils/utils';
+import { getUnixTs, placeOrder } from '../utils/send';
 
 const BuyButton = styled(Button)`
   margin: 20px 0px 0px 0px;
@@ -57,7 +61,8 @@ export default function TradeForm({
   const sendConnection = useSendConnection();
   const markPrice = useMarkPrice();
   useFeeDiscountKeys();
-  const { storedFeeDiscountKey: feeDiscountKey } = useLocallyStoredFeeDiscountKey();
+  const { storedFeeDiscountKey: feeDiscountKey } =
+    useLocallyStoredFeeDiscountKey();
 
   const [postOnly, setPostOnly] = useState(false);
   const [ioc, setIoc] = useState(false);
@@ -93,7 +98,7 @@ export default function TradeForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [price, baseSize]);
 
-  const walletPubkey =  wallet?.publicKey
+  const walletPubkey = wallet?.publicKey;
   useEffect(() => {
     const warmUpCache = async () => {
       try {
@@ -123,10 +128,9 @@ export default function TradeForm({
     return () => clearInterval(id);
   }, [market, sendConnection, wallet, walletPubkey]);
 
-  
   // useInterval(() => {
   //   const autoSettle = async () => {
-  //     if (!wallet || !market || !openOrdersAccount || !baseCurrencyAccount || !quoteCurrencyAccount || 
+  //     if (!wallet || !market || !openOrdersAccount || !baseCurrencyAccount || !quoteCurrencyAccount ||
   //       openOrdersAccount?.baseTokenFree.toNumber() <= 0 || openOrdersAccount.quoteTokenFree.toNumber() <= 0) {
   //       return;
   //     }
@@ -266,24 +270,24 @@ export default function TradeForm({
     setSubmitting(true);
     try {
       if (wallet) {
-      await placeOrder({
-        side,
-        price,
-        size: baseSize,
-        orderType: ioc ? 'ioc' : postOnly ? 'postOnly' : 'limit',
-        market,
-        connection: sendConnection,
-        wallet,
-        baseCurrencyAccount: baseCurrencyAccount?.pubkey,
-        quoteCurrencyAccount: quoteCurrencyAccount?.pubkey,
-        feeDiscountPubkey: feeDiscountKey
-      });
-      refreshCache(tuple('getTokenAccounts', wallet, connected));
-      setPrice(undefined);
-      onSetBaseSize(undefined);
-    } else {
-      throw Error('Error placing order')
-    }
+        await placeOrder({
+          side,
+          price,
+          size: baseSize,
+          orderType: ioc ? 'ioc' : postOnly ? 'postOnly' : 'limit',
+          market,
+          connection: sendConnection,
+          wallet,
+          baseCurrencyAccount: baseCurrencyAccount?.pubkey,
+          quoteCurrencyAccount: quoteCurrencyAccount?.pubkey,
+          feeDiscountPubkey: feeDiscountKey,
+        });
+        refreshCache(tuple('getTokenAccounts', wallet, connected));
+        setPrice(undefined);
+        onSetBaseSize(undefined);
+      } else {
+        throw Error('Error placing order');
+      }
     } catch (e) {
       console.warn(e);
       notify({
@@ -311,13 +315,14 @@ export default function TradeForm({
               width: '50%',
               textAlign: 'center',
               border: 'transparent',
-              borderBottom: side === 'buy' ? '2px solid #D44EB7' : '2px solid #1C274F',
+              borderBottom:
+                side === 'buy' ? '2px solid #D44EB7' : '2px solid #1C274F',
               background: 'transparent',
               fontSize: 14,
               fontStyle: 'normal',
               fontWeight: 600,
               color: side === 'buy' ? '#02bf76' : 'rgba(241, 241, 242, 0.5)',
-              padding: '12px 0 0 0'
+              padding: '12px 0 0 0',
             }}
           >
             BUY
@@ -330,13 +335,14 @@ export default function TradeForm({
               width: '50%',
               textAlign: 'center',
               border: 'transparent',
-              borderBottom: side === 'sell' ? '2px solid #D44EB7' : '2px solid #1C274F',
+              borderBottom:
+                side === 'sell' ? '2px solid #D44EB7' : '2px solid #1C274F',
               background: 'transparent',
               fontSize: 14,
               fontStyle: 'normal',
               fontWeight: 600,
               color: side === 'sell' ? '#F23B69' : 'rgba(241, 241, 242, 0.5)',
-              padding: '12px 0 0 0'
+              padding: '12px 0 0 0',
             }}
           >
             SELL
@@ -347,70 +353,83 @@ export default function TradeForm({
             padding: '24px 24px 15px',
           }}
         >
-          <Select
-            defaultValue="Limit Order"
-            bordered={false}
-            style={{
-              width: '100%',
-              height: 47,
-              left: 0,
-              top: 0,
-              background: '#1C274F',
-              borderRadius: 4,
-              paddingTop: 5,
-              fontSize: 14
-            }}
-          >
-            <Select.Option value="Limit Order">Limit Order</Select.Option>
-            {/* <Select.Option value="Market Order">Market Order</Select.Option> */}
-          </Select>
-          <div style={{ marginTop: 25}}>
-            <div style={{ textAlign: 'right', paddingBottom: 8, fontSize: 12, }}>Limit price</div>
+          <div style={{ marginTop: 5 }}>
+            <div style={{ textAlign: 'right', paddingBottom: 8, fontSize: 12 }}>
+              Price
+            </div>
             <Input
               type="number"
               bordered={false}
-              style={{ textAlign: 'right', paddingBottom: 8, height: 47, background: '#1C274F', borderRadius: 4, }}
+              style={{
+                textAlign: 'right',
+                paddingBottom: 8,
+                height: 47,
+                background: '#1C274F',
+                borderRadius: 4,
+              }}
               suffix={
-                <span style={{ fontSize: 10, opacity: 0.5 }}>{quoteCurrency}</span>
+                <span style={{ fontSize: 10, opacity: 0.5 }}>
+                  {quoteCurrency}
+                </span>
               }
               value={price}
               step={market?.tickSize || 1}
-              onChange={(e) => setPrice(parseFloat( e.target.value))}
+              onChange={(e) => setPrice(parseFloat(e.target.value))}
             />
           </div>
 
-          <div style={{ marginTop: 25}}>
-            <div style={{ textAlign: 'right', paddingBottom: 8, fontSize: 12, }}>Amount</div>
+          <div style={{ marginTop: 25 }}>
+            <div style={{ textAlign: 'right', paddingBottom: 8, fontSize: 12 }}>
+              Amount
+            </div>
             <Input
               type="number"
               bordered={false}
-              style={{ textAlign: 'right', paddingBottom: 8, height: 47, background: '#1C274F', borderRadius: 4, }}
+              style={{
+                textAlign: 'right',
+                paddingBottom: 8,
+                height: 47,
+                background: '#1C274F',
+                borderRadius: 4,
+              }}
               suffix={
-                <span style={{ fontSize: 10, opacity: 0.5 }}>{baseCurrency}</span>
+                <span style={{ fontSize: 10, opacity: 0.5 }}>
+                  {baseCurrency}
+                </span>
               }
               value={baseSize}
               step={market?.tickSize || 1}
-              onChange={(e) => onSetBaseSize(parseFloat( e.target.value))}
+              onChange={(e) => onSetBaseSize(parseFloat(e.target.value))}
             />
           </div>
 
-          <div style={{ marginTop: 25}}>
-            <div style={{ textAlign: 'right', paddingBottom: 8, fontSize: 12, }}>Total</div>
+          <div style={{ marginTop: 25 }}>
+            <div style={{ textAlign: 'right', paddingBottom: 8, fontSize: 12 }}>
+              Total
+            </div>
             <Input
               type="number"
               bordered={false}
-              style={{ textAlign: 'right', paddingBottom: 8, height: 47, background: '#1C274F', borderRadius: 4, }}
+              style={{
+                textAlign: 'right',
+                paddingBottom: 8,
+                height: 47,
+                background: '#1C274F',
+                borderRadius: 4,
+              }}
               suffix={
-                <span style={{ fontSize: 10, opacity: 0.5 }}>{quoteCurrency}</span>
+                <span style={{ fontSize: 10, opacity: 0.5 }}>
+                  {quoteCurrency}
+                </span>
               }
               value={quoteSize}
               step={market?.tickSize || 1}
-              onChange={(e) => onSetQuoteSize(parseFloat( e.target.value))}
+              onChange={(e) => onSetQuoteSize(parseFloat(e.target.value))}
             />
           </div>
 
-          <Row style={{ paddingTop: 8}}>
-            <Col span={12}>
+          <Row style={{ paddingTop: 8 }}>
+            <Col span={24}>
               <Slider
                 style={{ width: '80%' }}
                 value={sizeFraction}
@@ -419,29 +438,56 @@ export default function TradeForm({
                 onChange={onSliderChange}
               />
             </Col>
-            <Col span={6} style={{
-              paddingTop: 10,
-              paddingLeft: 10,
-            }}>
+          </Row>
+
+          <Row style={{ paddingTop: 8 }}>
+            <Col
+              span={12}
+              style={{
+                paddingTop: 10,
+                paddingLeft: 10,
+              }}
+            >
               <Switch
                 size="small"
                 checked={postOnly}
-                style={{ width: 32}}
+                style={{ width: 32 }}
                 onChange={postOnChange}
               />
-                <div style={{ display: 'inline-block', fontSize: 10, color: '#BEBEBE', paddingLeft: 4 }}>POST</div>
+              <div
+                style={{
+                  display: 'inline-block',
+                  fontSize: 10,
+                  color: '#BEBEBE',
+                  paddingLeft: 4,
+                }}
+              >
+                POST
+              </div>
             </Col>
-            <Col span={6} style={{
-              paddingTop: 10,
-              paddingLeft: 10,
-            }}>
+            <Col
+              span={12}
+              style={{
+                paddingTop: 10,
+                paddingLeft: 10,
+              }}
+            >
               <Switch
                 size="small"
                 checked={ioc}
-                style={{ width: 32}}
+                style={{ width: 32 }}
                 onChange={iocOnChange}
               />
-              <div style={{ display: 'inline-block', fontSize: 10, color: '#BEBEBE', paddingLeft: 4 }}>IOC</div>
+              <div
+                style={{
+                  display: 'inline-block',
+                  fontSize: 10,
+                  color: '#BEBEBE',
+                  paddingLeft: 4,
+                }}
+              >
+                IOC
+              </div>
             </Col>
           </Row>
 
