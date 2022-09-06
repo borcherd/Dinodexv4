@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layout, Row, Col, Grid } from 'antd';
 import Link from './Link';
-import { helpUrls } from './HelpUrls';
+import { helpUrls } from '../consts/HelpUrls';
 const { Footer } = Layout;
 const { useBreakpoint } = Grid;
 

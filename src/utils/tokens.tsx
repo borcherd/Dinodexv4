@@ -8,7 +8,7 @@ import { TOKEN_MINTS } from '@project-serum/serum';
 import { TokenAccount } from './types';
 import { WRAPPED_SOL_MINT } from '@project-serum/serum/lib/token-instructions';
 // @ts-ignore
-import { cloneDeep } from 'lodash-es'
+import { cloneDeep } from 'lodash-es';
 import { getMultipleSolanaAccounts } from './send';
 import tuple from 'immutable-tuple';
 import { useAsyncData } from './fetch-loop';
@@ -30,9 +30,11 @@ export const MINT_LAYOUT = BufferLayout.struct([
   BufferLayout.blob(36),
 ]);
 
-export function parseTokenAccountData(
-  data: Buffer,
-): { mint: PublicKey; owner: PublicKey; amount: number } {
+export function parseTokenAccountData(data: Buffer): {
+  mint: PublicKey;
+  owner: PublicKey;
+  amount: number;
+} {
   let { mint, owner, amount } = ACCOUNT_LAYOUT.decode(data);
   return {
     mint: new PublicKey(mint),
@@ -79,14 +81,11 @@ export async function getOwnedTokenAccounts(
   publicKey: PublicKey,
 ): Promise<Array<{ publicKey: PublicKey; accountInfo: AccountInfo<Buffer> }>> {
   let filters = getOwnedAccountsFilters(publicKey);
-  let resp = await connection.getProgramAccounts(
-    TOKEN_PROGRAM_ID,
-    {
-      filters,
-    },
-  );
-  return resp
-    .map(({ pubkey, account: { data, executable, owner, lamports } }) => ({
+  let resp = await connection.getProgramAccounts(TOKEN_PROGRAM_ID, {
+    filters,
+  });
+  return resp.map(
+    ({ pubkey, account: { data, executable, owner, lamports } }) => ({
       publicKey: new PublicKey(pubkey),
       accountInfo: {
         data,
@@ -94,7 +93,8 @@ export async function getOwnedTokenAccounts(
         owner: new PublicKey(owner),
         lamports,
       },
-    }))
+    }),
+  );
 }
 
 export async function getTokenAccountInfo(
@@ -206,47 +206,45 @@ export function useMintInfos(): [
   );
 }
 
-interface Tokens {
-  [key: string]: any
-  [index: number]: any
+export interface Tokens {
+  [key: string]: any;
+  [index: number]: any;
 }
 
 export interface TokenInfo {
-  symbol: string
-  name: string
+  symbol: string;
+  name: string;
 
-  mintAddress: string
-  decimals: number
+  mintAddress: string;
+  decimals: number;
 
-  referrer?: string
+  referrer?: string;
 }
-
 
 export function getTokenByMintAddress(mintAddress: string): TokenInfo | null {
   if (mintAddress === NATIVE_SOL.mintAddress) {
-    return cloneDeep(NATIVE_SOL)
+    return cloneDeep(NATIVE_SOL);
   }
 
-  let token = null
+  let token = null;
 
   for (const symbol of Object.keys(TOKENS)) {
-    const info = cloneDeep(TOKENS[symbol])
+    const info = cloneDeep(TOKENS[symbol]);
 
     if (info.mintAddress === mintAddress) {
-      token = info
+      token = info;
     }
   }
 
-  return token
+  return token;
 }
 
 export const NATIVE_SOL: TokenInfo = {
   symbol: 'SOL',
   name: 'Native Solana',
   mintAddress: '11111111111111111111111111111111',
-  decimals: 9
-}
-
+  decimals: 9,
+};
 
 export const TOKENS: Tokens = {
   WSOL: {
@@ -254,34 +252,20 @@ export const TOKENS: Tokens = {
     mintAddress: 'So11111111111111111111111111111111111111112',
     referrer: 'HTcarLHe7WRxBQCWvhVB8AP56pnEtJUV2jDGvcpY3xo5',
   },
-  BTC: {
-    symbol: 'BTC',
-    mintAddress: '9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E',
-    referrer: 'GZpS8cY8Nt8HuqxzJh6PXTdSxc38vFUjBmi7eEUkkQtG',
-  },
-  ETH: {
-    symbol: 'ETH',
-    mintAddress: '2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk',
-    referrer: 'CXPTcSxxh4AT38gtv3SPbLS7oZVgXzLbMb83o4ziXjjN',
-  },
-  USDT: {
-    symbol: 'USDT',
-    mintAddress: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
-    referrer: '8DwwDNagph8SdwMUdcXS5L9YAyutTyDJmK6cTKrmNFk3',
-  },
-  WUSDT: {
-    symbol: 'WUSDT',
-    mintAddress: 'BQcdHdAQW1hczDbBi9hiegXAR7A98Q9jx3X3iBBBDiq4',
-    referrer: 'CA98hYunCLKgBuD6N8MJSgq1GbW9CXdksLf5mw736tS3',
-  },
   USDC: {
     symbol: 'USDC',
     mintAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
     referrer: '92vdtNjEg6Zth3UU1MgPgTVFjSEzTHx66aCdqWdcRkrg',
   },
-  RAY: {
-    symbol: 'RAY',
-    mintAddress: '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R',
+  DINO: {
+    symbol: 'DINO',
+    mintAddress: '6Y7LbYB3tfGBG6CSkyssoxdtHb77AEMTRVXe8JUJRwZ7',
     referrer: '33XpMmMQRf6tSPpmYyzpwU4uXpZHkFwCZsusD9dMYkjy',
   },
-}
+  DINOEGG: {
+    symbol: 'DINOEGG',
+    mintAddress: '2TxM6S3ZozrBHZGHEPh9CtM74a9SVXbr7NQ7UxkRvQij',
+    referrer: '33XpMmMQRf6tSPpmYyzpwU4uXpZHkFwCZsusD9dMYkjy',
+  },
+  // ADD SFTs
+};

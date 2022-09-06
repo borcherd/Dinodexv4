@@ -1,14 +1,13 @@
-import BalancesTable from './BalancesTable';
-import OpenOrderTable from './OpenOrderTable';
-import React, { useState } from 'react';
 import { Col, Row } from 'antd';
-import FillsTable from './FillsTable';
+import React, { useState } from 'react';
+import { useBalances, useOpenOrders } from '../../utils/markets';
 import FloatingElement from '../layout/FloatingElement';
+import BalancesTable from './BalancesTable';
 import FeesTable from './FeesTable';
-import { useOpenOrders, useBalances, useMarket } from '../../utils/markets';
+import FillsTable from './FillsTable';
+import OpenOrderTable from './OpenOrderTable';
 
-export default function Index({ smallScreen }) {
-  const { market } = useMarket();
+export default function Index({ smallScreen, market }) {
   const [activeKeyStr, setActiveKeyStr] = useState('orders');
   if (smallScreen) {
     return (
@@ -22,7 +21,7 @@ export default function Index({ smallScreen }) {
               textAlign: 'center',
               border: 'transparent',
               borderBottom:
-                activeKeyStr === 'orders' ? '2px solid #5AC4BE' : '',
+                activeKeyStr === 'orders' ? '2px solid #D44EB7' : '',
               background: 'transparent',
               fontSize: 14,
               fontStyle: 'normal',
@@ -43,7 +42,7 @@ export default function Index({ smallScreen }) {
               width: '50%',
               textAlign: 'center',
               border: 'transparent',
-              borderBottom: activeKeyStr === 'fills' ? '2px solid #5AC4BE' : '',
+              borderBottom: activeKeyStr === 'fills' ? '2px solid #D44EB7' : '',
               background: 'transparent',
               fontSize: 14,
               fontStyle: 'normal',
@@ -65,7 +64,7 @@ export default function Index({ smallScreen }) {
               textAlign: 'center',
               border: 'transparent',
               borderBottom:
-                activeKeyStr === 'balances' ? '2px solid #5AC4BE' : '',
+                activeKeyStr === 'balances' ? '2px solid #D44EB7' : '',
               background: 'transparent',
               fontSize: 14,
               fontStyle: 'normal',
@@ -88,7 +87,7 @@ export default function Index({ smallScreen }) {
                 textAlign: 'center',
                 border: 'transparent',
                 borderBottom:
-                  activeKeyStr === 'fees' ? '2px solid #5AC4BE' : '',
+                  activeKeyStr === 'fees' ? '2px solid #D44EB7' : '',
                 background: 'transparent',
                 fontSize: 14,
                 fontStyle: 'normal',
@@ -132,7 +131,7 @@ export default function Index({ smallScreen }) {
               textAlign: 'center',
               border: 'transparent',
               borderBottom:
-                activeKeyStr === 'orders' ? '2px solid #5AC4BE' : '',
+                activeKeyStr === 'orders' ? '2px solid #D44EB7' : '',
               background: 'transparent',
               fontSize: 14,
               fontStyle: 'normal',
@@ -154,7 +153,7 @@ export default function Index({ smallScreen }) {
               width: '50%',
               textAlign: 'center',
               border: 'transparent',
-              borderBottom: activeKeyStr === 'fills' ? '2px solid #5AC4BE' : '',
+              borderBottom: activeKeyStr === 'fills' ? '2px solid #D44EB7' : '',
               background: 'transparent',
               fontSize: 14,
               fontStyle: 'normal',
@@ -177,7 +176,7 @@ export default function Index({ smallScreen }) {
               textAlign: 'center',
               border: 'transparent',
               borderBottom:
-                activeKeyStr === 'balances' ? '2px solid #5AC4BE' : '',
+                activeKeyStr === 'balances' ? '2px solid #D44EB7' : '',
               background: 'transparent',
               fontSize: 14,
               fontStyle: 'normal',
@@ -201,7 +200,7 @@ export default function Index({ smallScreen }) {
                 textAlign: 'center',
                 border: 'transparent',
                 borderBottom:
-                  activeKeyStr === 'fees' ? '2px solid #5AC4BE' : '',
+                  activeKeyStr === 'fees' ? '2px solid #D44EB7' : '',
                 background: 'transparent',
                 fontSize: 14,
                 fontStyle: 'normal',

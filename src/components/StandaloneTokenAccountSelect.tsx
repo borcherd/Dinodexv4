@@ -1,10 +1,9 @@
+import { Col, Select, Typography } from 'antd';
 import React from 'react';
-import { TokenAccount } from '../utils/types';
 import { useSelectedTokenAccounts } from '../utils/markets';
-import { Button, Col, Select, Typography } from 'antd';
-import { CopyOutlined } from '@ant-design/icons';
-import { abbreviateAddress } from '../utils/utils';
 import { notify } from '../utils/notifications';
+import { TokenAccount } from '../utils/types';
+import { abbreviateAddress } from '../utils/utils';
 
 export default function StandaloneTokenAccountsSelect({
   accounts,
@@ -65,16 +64,6 @@ export default function StandaloneTokenAccountsSelect({
             </Select.Option>
           ))}
         </Select>
-      </Col>
-      <Col span={2} offset={1}>
-        <Button
-          shape="round"
-          icon={<CopyOutlined />}
-          size={'small'}
-          onClick={() =>
-            selectedValue && navigator.clipboard.writeText(selectedValue)
-          }
-        />
       </Col>
     </React.Fragment>
   );

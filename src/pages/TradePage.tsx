@@ -1,33 +1,28 @@
-import { Button, Col, Popover, Row, Select, Typography } from 'antd';
-import {
-  DeleteOutlined,
-  InfoCircleOutlined,
-  PlusCircleOutlined,
-} from '@ant-design/icons';
-import {
-  MarketProvider,
-  getMarketInfos,
-  getTradePageUrl,
-  useMarket,
-  useMarketsList,
-  useUnmigratedDeprecatedMarkets,
-} from '../utils/markets';
+import { DeleteOutlined } from '@ant-design/icons';
+import { Col, Row, Select } from 'antd';
+import { nanoid } from 'nanoid';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-
+import styled from 'styled-components';
 import CustomMarketDialog from '../components/CustomMarketDialog';
 import DeprecatedMarketsInstructions from '../components/DeprecatedMarketsInstructions';
-import LinkAddress from '../components/LinkAddress';
-import { MarketInfo } from '../utils/types';
 import Orderbook from '../components/Orderbook';
 import StandaloneBalancesDisplay from '../components/StandaloneBalancesDisplay';
-import { TVChartContainer } from '../components/TradingView';
 import TradeForm from '../components/TradeForm';
 import TradesTable from '../components/TradesTable';
+import { TVChartContainer } from '../components/TradingView';
 import UserInfoTable from '../components/UserInfoTable';
+import {
+  getMarketInfos,
+  getTradePageUrl,
+  MarketProvider,
+  useMarket,
+  useMarketsList,
+  useMarkPrice,
+  useUnmigratedDeprecatedMarkets,
+} from '../utils/markets';
 import { notify } from '../utils/notifications';
-import styled from 'styled-components';
-import { nanoid } from 'nanoid';
+import { MarketInfo } from '../utils/types';
 
 const { Option, OptGroup } = Select;
 
@@ -82,6 +77,8 @@ function TradePageInner() {
   const [handleDeprecated, setHandleDeprecated] = useState(false);
   const [addMarketVisible, setAddMarketVisible] = useState(false);
   const deprecatedMarkets = useUnmigratedDeprecatedMarkets();
+  const markPrice = useMarkPrice();
+
   // const [dimensions, setDimensions] = useState({
   const [dimensions] = useState({
     height: window.innerHeight,
@@ -89,7 +86,7 @@ function TradePageInner() {
   });
 
   useEffect(() => {
-    document.title = marketName ? `${marketName} — Raydium` : 'Raydium';
+    document.title = marketName ? `${marketName} — DINODEX` : 'DINODEX';
   }, [marketName]);
 
   const changeOrderRef =
@@ -119,6 +116,7 @@ function TradePageInner() {
       (size) => changeOrderRef.current && changeOrderRef.current({ size }),
       [],
     ),
+    market: market,
   };
   const component = (() => {
     if (handleDeprecated) {
@@ -178,21 +176,10 @@ function TradePageInner() {
               onDeleteCustomMarket={onDeleteCustomMarket}
             />
           </Col>
-          {deprecatedMarkets && deprecatedMarkets.length > 0 && (
-            <React.Fragment>
-              <Col>
-                <Typography>
-                  You have unsettled funds on old markets! Please go through
-                  them to claim your funds.
-                </Typography>
-              </Col>
-              <Col>
-                <Button onClick={() => setHandleDeprecated(!handleDeprecated)}>
-                  {handleDeprecated ? 'View new markets' : 'Handle old markets'}
-                </Button>
-              </Col>
-            </React.Fragment>
-          )}
+          <Col>
+            <Row>Price</Row>
+            <Row>{markPrice != null ? '$ ' + markPrice : ''}</Row>
+          </Col>
         </Row>
         {component}
       </Wrapper>
@@ -313,7 +300,7 @@ const DeprecatedMarketsPage = ({ switchToLiveMarkets }) => {
   );
 };
 
-const RenderNormal = ({ onChangeOrderRef, onPrice, onSize }) => {
+const RenderNormal = ({ onChangeOrderRef, onPrice, onSize, market }) => {
   return (
     <Row
       style={{
@@ -339,7 +326,7 @@ const RenderNormal = ({ onChangeOrderRef, onPrice, onSize }) => {
         style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
       >
         <TVChartContainer />
-        <UserInfoTable smallScreen={false} />
+        <UserInfoTable smallScreen={false} market={market} />
       </Col>
 
       <Col flex="15%" style={{ height: '100%', minWidth: '280px' }}>
@@ -350,7 +337,7 @@ const RenderNormal = ({ onChangeOrderRef, onPrice, onSize }) => {
   );
 };
 
-const RenderSmaller = ({ onChangeOrderRef, onPrice, onSize }) => {
+const RenderSmaller = ({ onChangeOrderRef, onPrice, onSize, market }) => {
   return (
     <>
       <Row>
@@ -366,7 +353,7 @@ const RenderSmaller = ({ onChangeOrderRef, onPrice, onSize }) => {
         </Col>
 
         <Col span={24}>
-          <UserInfoTable smallScreen={true} />
+          <UserInfoTable smallScreen={true} market={market} />
         </Col>
 
         <Col xs={24} sm={12}>
