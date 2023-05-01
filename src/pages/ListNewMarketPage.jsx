@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Form, Input, Tooltip, Typography } from 'antd';
 import { notify } from '../utils/notifications';
-import { MARKETS } from '@project-serum/serum';
+import { MARKETS } from '@openbook-dex/openbook';
 import { useConnection } from '../utils/connection';
 import FloatingElement from '../components/layout/FloatingElement';
 import styled from 'styled-components';

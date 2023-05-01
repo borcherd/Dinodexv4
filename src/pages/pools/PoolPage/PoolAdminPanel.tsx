@@ -1,6 +1,6 @@
 import React, { FormEvent, useMemo, useState } from 'react';
-import { AdminControlledPoolInstructions, PoolInfo } from '@project-serum/pool';
-import { TokenInstructions } from '@project-serum/serum';
+import { AdminControlledPoolInstructions, PoolInfo } from '@openbook-dex/pool';
+import { TokenInstructions } from '@openbook-dex/openbook';
 import FloatingElement from '../../../components/layout/FloatingElement';
 import { useConnection } from '../../../utils/connection';
 import { useWallet } from '../../../utils/wallet';
@@ -20,7 +20,7 @@ import { AutoComplete, Button, Input, Select, Tabs } from 'antd';
 import {
   createAssociatedTokenAccount,
   getAssociatedTokenAddress,
-} from '@project-serum/associated-token';
+} from '@openbook-dex/associated-token';
 import { parseTokenMintData, useMintToTickers } from '../../../utils/tokens';
 import BN from 'bn.js';
 import { refreshAllCaches } from '../../../utils/fetch-loop';
@@ -76,6 +76,7 @@ function PauseUnpauseTab({ poolInfo }: TabParams) {
     } catch (e) {
       notify({
         message: 'Error pausing pool',
+        //@ts-ignore
         description: e.message,
         type: 'error',
       });
@@ -96,6 +97,7 @@ function PauseUnpauseTab({ poolInfo }: TabParams) {
     } catch (e) {
       notify({
         message: 'Error unpausing pool',
+        //@ts-ignore
         description: e.message,
         type: 'error',
       });
@@ -491,6 +493,7 @@ function useOnSubmitHandler(
     } catch (e) {
       notify({
         message: `Error ${description}`,
+        //@ts-ignore
         description: e.message,
         type: 'error',
       });

@@ -13,7 +13,7 @@ import {
 } from './markets';
 import { settleFunds } from './send';
 import { PreferencesContextValues } from './types';
-import { getAssociatedTokenAddress } from '@project-serum/associated-token';
+import { getAssociatedTokenAddress } from '@openbook-dex/associated-token';
 
 const PreferencesContext = React.createContext<PreferencesContextValues | null>(
   null,
@@ -90,6 +90,7 @@ export function PreferencesProvider({ children }) {
             await sleep(1000);
           }
         } catch (e) {
+        //@ts-ignore
           console.log('Error auto settling funds: ' + e.message);
         }
       }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Col, Input, Row, Select, Typography } from 'antd';
 import styled from 'styled-components';
-import { Orderbook } from '@project-serum/serum';
+import { Orderbook } from '@openbook-dex/openbook';
 import {
   getExpectedFillPrice,
   getMarketDetails,
@@ -94,6 +94,7 @@ export default function ConvertForm() {
   };
 
   return (
+    //@ts-ignore
     <FloatingElement style={{ maxWidth: 500 }}>
       <Title level={3}>Convert</Title>
       {!connected && (
@@ -227,6 +228,7 @@ function ConvertFormSubmit({
       console.warn(e);
       notify({
         message: 'Error placing order',
+        // @ts-ignore
         description: e.message,
         type: 'error',
       });
@@ -290,6 +292,7 @@ function ConvertFormSubmit({
       console.warn(e);
       notify({
         message: 'Error placing order',
+        // @ts-ignore
         description: e.message,
         type: 'error',
       });

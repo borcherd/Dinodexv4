@@ -8,7 +8,7 @@ import { useLocalStorageState } from './utils';
 
 export const endpoints = [
   // { url: 'https://raydium.rpcpool.com', weight: 30 },
-  { url: 'https://solana-api.tt-prod.net', weight: 100 }
+  { url: 'https://app.solanadino.workers.dev/', weight: 100 }
   // { url: 'https://raydium.genesysgo.net', weight: 100 }
 ]
 

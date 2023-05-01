@@ -52,6 +52,7 @@ export default function OpenOrdersPage() {
   }
 
   return (
+    //@ts-ignore
     <FloatingElement style={{ flex: 1, paddingTop: 10 }}>
       <Button onClick={refreshOpenOrders} loading={!loaded}>
         Refresh

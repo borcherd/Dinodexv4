@@ -15,7 +15,7 @@ import styled from 'styled-components';
 import { useWallet } from '../../utils/wallet';
 import { sendSignedTransaction, signTransactions } from '../../utils/send';
 import { useMintInput } from '../../components/useMintInput';
-import { PoolTransactions } from '@project-serum/pool';
+import { PoolTransactions } from '@openbook-dex/pool';
 import { useTokenAccounts } from '../../utils/markets';
 import BN from 'bn.js';
 import { notify } from '../../utils/notifications';
@@ -144,6 +144,7 @@ export default function NewPoolPage() {
       console.warn(e);
       notify({
         message: 'Error creating new pool',
+        // @ts-ignore
         description: e.message,
         type: 'error',
       });

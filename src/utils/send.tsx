@@ -25,9 +25,9 @@ import {
   OpenOrders,
   parseInstructionErrorResponse,
   TokenInstructions,
-} from '@project-serum/serum';
+} from '@openbook-dex/openbook';
 import { SelectedTokenAccounts, TokenAccount } from './types';
-import { Order } from '@project-serum/serum/lib/market';
+import { Order } from '@openbook-dex/openbook/lib/market';
 import { Buffer } from 'buffer';
 import assert from 'assert';
 import { struct } from 'superstruct';
@@ -757,6 +757,7 @@ export async function sendSignedTransaction({
   try {
     await awaitTransactionSignatureConfirmation(txid, timeout, connection);
   } catch (err) {
+        //@ts-ignore
     if (err.timeout) {
       throw new Error('Timed out awaiting confirmation on transaction');
     }
@@ -784,6 +785,7 @@ export async function sendSignedTransaction({
       ) {
         const parsedErrorInfo = parseInstructionErrorResponse(
           signedTransaction,
+        //@ts-ignore
           simulateResult.err['InstructionError'],
         );
         parsedError = parsedErrorInfo.error;

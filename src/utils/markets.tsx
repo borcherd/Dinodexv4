@@ -15,7 +15,7 @@ import {
   OpenOrders,
   Orderbook,
   TokenInstructions
-} from '@project-serum/serum';
+} from '@openbook-dex/openbook';
 import React, { useContext, useEffect, useState } from 'react';
 import { getCache, setCache } from './fetch-loop';
 import {
@@ -35,9 +35,9 @@ import { useAccountData, useAccountInfo, useConnection } from './connection';
 
 import BN from 'bn.js';
 import RaydiumApi from './raydiumConnector';
-import { Order } from '@project-serum/serum/lib/market';
+import { Order } from '@openbook-dex/openbook/lib/market';
 import { PublicKey, Connection } from '@solana/web3.js';
-import { WRAPPED_SOL_MINT } from '@project-serum/serum/lib/token-instructions';
+import { WRAPPED_SOL_MINT } from '@openbook-dex/openbook/lib/token-instructions';
 import { notify } from './notifications';
 import { sleep } from './utils';
 import tuple from 'immutable-tuple';
@@ -128,6 +128,7 @@ export function useAllMarkets() {
         } catch (e) {
           notify({
             message: 'Error loading all market',
+        //@ts-ignore
             description: e.message,
             type: 'error',
           });
@@ -190,6 +191,7 @@ export function useUnmigratedOpenOrdersAccounts() {
         console.log(
           'Error loading deprecated markets',
           programId?.toBase58(),
+        //@ts-ignore
           e.message,
         );
       }
@@ -1174,6 +1176,7 @@ export function useUnmigratedDeprecatedMarkets() {
         console.log('Failed loading market', marketInfo.name, e);
         notify({
           message: 'Error loading market',
+        //@ts-ignore
           description: e.message,
           type: 'error',
         });
@@ -1244,6 +1247,7 @@ export function useGetOpenOrdersForDeprecatedMarkets(): {
         console.log('Failed loading open orders', market.address.toBase58(), e);
         notify({
           message: `Error loading open orders for deprecated ${marketName}`,
+        //@ts-ignore
           description: e.message,
           type: 'error',
         });
