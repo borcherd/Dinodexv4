@@ -211,6 +211,7 @@ const RenderNormal = ({
       <img
         src={imageSrc}
         style={{ height: '250px', width: '210PX', alignSelf: 'center' }}
+        alt=''
       />
       <TradeForm setChangeOrderRef={onChangeOrderRef} />
       <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />
@@ -250,6 +251,7 @@ const RenderSmaller = ({
       <img
         src={imageSrc}
         style={{ height: '200px', width: '175px', alignSelf: 'center' }}
+        alt=''
       />
       <TradeForm setChangeOrderRef={onChangeOrderRef} />
       <Orderbook smallScreen={false} onPrice={onPrice} onSize={onSize} />

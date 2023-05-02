@@ -37,7 +37,6 @@ export interface ChartContainerState {}
 
 export const TVChartContainer = () => {
   let datafeed = useTvDataFeed();
-  let resolution = window.localStorage.getItem('resolution') ?? '60'
   
   const defaultProps: ChartContainerProps = {
     symbol: 'RAY/USDT',

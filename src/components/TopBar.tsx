@@ -114,7 +114,6 @@ export default function TopBar() {
     ? location.pathname
     : getTradePageUrl();
 
-  const { SubMenu } = Menu;
 
   const menuDiv = (
     <Menu

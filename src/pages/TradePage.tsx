@@ -19,7 +19,6 @@ import {
   useMarket,
   useMarketsList,
   useMarkPrice,
-  useUnmigratedDeprecatedMarkets,
 } from '../utils/markets';
 import { notify } from '../utils/notifications';
 import { MarketInfo } from '../utils/types';
@@ -70,7 +69,6 @@ function TradePageInner() {
   // const markets = useMarketsList();
   const [handleDeprecated, setHandleDeprecated] = useState(false);
   const [addMarketVisible, setAddMarketVisible] = useState(false);
-  const deprecatedMarkets = useUnmigratedDeprecatedMarkets();
   const markPrice = useMarkPrice();
 
   // const [dimensions, setDimensions] = useState({
