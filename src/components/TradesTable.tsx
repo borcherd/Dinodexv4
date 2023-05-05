@@ -20,6 +20,7 @@ export default function PublicTrades({ smallScreen }) {
 
   return (
     <FloatingElement
+    //@ts-ignore
       style={
         {
           ...(smallScreen

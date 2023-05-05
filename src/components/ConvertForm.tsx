@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Col, Input, Row, Select, Typography } from 'antd';
 import styled from 'styled-components';
-import { Orderbook } from '@project-serum/serum';
+import { Orderbook } from '@openbook-dex/openbook';
 import {
   getExpectedFillPrice,
   getMarketDetails,
@@ -10,27 +10,31 @@ import {
   getSelectedTokenAccountForMint,
   MarketProvider,
   useBalances,
-  useCustomMarkets, useLocallyStoredFeeDiscountKey,
+  useCustomMarkets,
+  useLocallyStoredFeeDiscountKey,
   useMarket,
   useTokenAccounts,
 } from '../utils/markets';
 import { notify } from '../utils/notifications';
-import { useWallet } from '../utils/wallet';
-import { useConnection, useSendConnection } from '../utils/connection';
+import { useWallet, Wallet } from '@solana/wallet-adapter-react';
+import {
+  useConnection,
+  useConnectionConfig,
+  useSendConnection,
+} from '../utils/connection';
 import { placeOrder } from '../utils/send';
 import { floorToDecimal, getDecimalCount } from '../utils/utils';
 import FloatingElement from './layout/FloatingElement';
 import WalletConnect from './WalletConnect';
 import { SwapOutlined } from '@ant-design/icons';
 import { CustomMarketInfo } from '../utils/types';
-// import Wallet from '@project-serum/sol-wallet-adapter';
-import { WalletAdapter } from '../wallet-adapters';
+import { BaseSignerWalletAdapter } from '@solana/wallet-adapter-base';
 
 const { Option } = Select;
 const { Title } = Typography;
 
 const ActionButton = styled(Button)`
-  color: #d44eb7;
+  color: #2abdd2;
   background-color: #212734;
   border-width: 0px;
 `;
@@ -41,7 +45,7 @@ const ConvertButton = styled(Button)`
 `;
 
 export default function ConvertForm() {
-  const { connected, wallet } = useWallet(); 
+  const { connected, wallet } = useWallet();
   const { customMarkets } = useCustomMarkets();
   const marketInfos = getMarketInfos(customMarkets);
   const [marketAddress, setMarketAddress] = useState<string | null>(null);
@@ -94,6 +98,7 @@ export default function ConvertForm() {
   };
 
   return (
+    //@ts-ignore
     <FloatingElement style={{ maxWidth: 500 }}>
       <Title level={3}>Convert</Title>
       {!connected && (
@@ -103,7 +108,7 @@ export default function ConvertForm() {
           </Col>
         </Row>
       )}
-      {tokenConvertMap && connected && (
+      {tokenConvertMap && wallet && connected && (
         <>
           <Row style={{ marginBottom: 8 }}>
             <Col>
@@ -174,18 +179,21 @@ function ConvertFormSubmit({
   setSize: (newSize: number | undefined) => void;
   fromToken: string;
   toToken: string;
-  wallet?: WalletAdapter;
+  wallet?: Wallet;
   customMarkets: CustomMarketInfo[];
 }) {
   const { market } = useMarket();
   const [accounts] = useTokenAccounts();
   const balances = useBalances();
+  const {publicKey} = useWallet();
   const [fromAmount, setFromAmount] = useState<number | undefined>();
   const [toAmount, setToAmount] = useState<number | undefined>();
-  const { storedFeeDiscountKey: feeDiscountKey } = useLocallyStoredFeeDiscountKey();
+  const { storedFeeDiscountKey: feeDiscountKey } =
+    useLocallyStoredFeeDiscountKey();
 
   const connection = useConnection();
   const sendConnection = useSendConnection();
+  const { priorityFee, computeUnits } = useConnectionConfig();
 
   const [isConverting, setIsConverting] = useState(false);
 
@@ -223,7 +231,7 @@ function ConvertFormSubmit({
     let side;
     try {
       side = isFromTokenBaseOfMarket(market) ? 'sell' : 'buy';
-    } catch (e) {
+    } catch (e: any) {
       console.warn(e);
       notify({
         message: 'Error placing order',
@@ -270,7 +278,7 @@ function ConvertFormSubmit({
 
     setIsConverting(true);
     try {
-      if (!wallet) {
+      if (!wallet || !publicKey) {
         return null;
       }
 
@@ -281,12 +289,15 @@ function ConvertFormSubmit({
         orderType: 'ioc',
         market,
         connection: sendConnection,
-        wallet,
+        wallet: wallet.adapter as BaseSignerWalletAdapter,
+        userPublicKey: publicKey,
         baseCurrencyAccount: baseCurrencyAccount?.pubkey,
         quoteCurrencyAccount: quoteCurrencyAccount?.pubkey,
         feeDiscountPubkey: feeDiscountKey,
+        priorityFee,
+        computeUnits,
       });
-    } catch (e) {
+    } catch (e: any) {
       console.warn(e);
       notify({
         message: 'Error placing order',
@@ -328,7 +339,7 @@ function ConvertFormSubmit({
       } else {
         return [1, expectedPrice.toFixed(6)];
       }
-    } catch (e) {
+    } catch (e: any) {
       console.log(`Got error ${e}`);
       return [null, null];
     }

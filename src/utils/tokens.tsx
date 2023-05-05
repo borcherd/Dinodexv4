@@ -4,9 +4,9 @@ import { AccountInfo, Connection, PublicKey } from '@solana/web3.js';
 import { useAllMarkets, useCustomMarkets, useTokenAccounts } from './markets';
 
 import BN from 'bn.js';
-import { TOKEN_MINTS } from '@project-serum/serum';
+import { TOKEN_MINTS } from '@openbook-dex/openbook';
 import { TokenAccount } from './types';
-import { WRAPPED_SOL_MINT } from '@project-serum/serum/lib/token-instructions';
+import { WRAPPED_SOL_MINT } from '@openbook-dex/openbook/lib/token-instructions';
 // @ts-ignore
 import { cloneDeep } from 'lodash-es';
 import { getMultipleSolanaAccounts } from './send';

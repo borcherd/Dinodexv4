@@ -1,110 +1,34 @@
-import { Button, Col, Row } from 'antd';
+import {  Col, Row } from 'antd';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSendConnection } from '../utils/connection';
 import {
   useBalances,
   useMarket,
-  useSelectedBaseCurrencyAccount,
-  useSelectedOpenOrdersAccount,
-  useSelectedQuoteCurrencyAccount,
   useTokenAccounts
 } from '../utils/markets';
-import { notify } from '../utils/notifications';
-import { settleFunds } from '../utils/send';
 import { Balances } from '../utils/types';
-import { useWallet } from '../utils/wallet';
 import DepositDialog from './DepositDialog';
 import FloatingElement from './layout/FloatingElement';
 import StandaloneTokenAccountsSelect from './StandaloneTokenAccountSelect';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 const RowBox = styled(Row)`
   padding-bottom: 20px;
 `;
 
-const ActionButton = styled(Button)`
-  font-size: 12px;
-  display: 'inline-block';
-  padding-right: 15px;
-  padding-left: 15px;
-  border-radius: 4px;
-`;
+
 
 export default function StandaloneBalancesDisplay() {
   const { baseCurrency, quoteCurrency, market } = useMarket();
   const balances = useBalances();
-  const openOrdersAccount = useSelectedOpenOrdersAccount(true);
-  const connection = useSendConnection();
-  const { wallet, connected } = useWallet();
+  const { publicKey, connected } = useWallet();
   const [baseOrQuote, setBaseOrQuote] = useState('');
-  const baseCurrencyAccount = useSelectedBaseCurrencyAccount();
-  const quoteCurrencyAccount = useSelectedQuoteCurrencyAccount();
   const [tokenAccounts] = useTokenAccounts();
   const baseCurrencyBalances =
     balances && balances.find((b) => b.coin === baseCurrency);
   const quoteCurrencyBalances =
     balances && balances.find((b) => b.coin === quoteCurrency);
   
-  async function onSettleFunds() {
-    if (!wallet) {
-      notify({
-        message: 'Wallet not connected',
-        description: 'wallet is undefined',
-        type: 'error',
-      });
-      return;
-    }
-
-    if (!market) {
-      notify({
-        message: 'Error settling funds',
-        description: 'market is undefined',
-        type: 'error',
-      });
-      return;
-    }
-    if (!openOrdersAccount) {
-      notify({
-        message: 'Error settling funds',
-        description: 'Open orders account is undefined 1',
-        type: 'error',
-      });
-      return;
-    }
-    if (!baseCurrencyAccount) {
-      notify({
-        message: 'Error settling funds',
-        description: 'Open orders account is undefined 2',
-        type: 'error',
-      });
-      return;
-    }
-    if (!quoteCurrencyAccount) {
-      notify({
-        message: 'Error settling funds',
-        description: 'Open orders account is undefined 3',
-        type: 'error',
-      });
-      return;
-    }
-
-    try {
-      await settleFunds({
-        market,
-        openOrders: openOrdersAccount,
-        connection,
-        wallet,
-        baseCurrencyAccount,
-        quoteCurrencyAccount,
-      });
-    } catch (e) {
-      notify({
-        message: 'Error settling funds',
-        description: e.message,
-        type: 'error',
-      });
-    }
-  }
 
   const formattedBalances: [
     string | undefined,
@@ -126,6 +50,7 @@ export default function StandaloneBalancesDisplay() {
     ],
   ];
   return (
+    //@ts-ignore
     <FloatingElement style={{ flex: 1, paddingTop: 9 }}>
       <div
         style={{
@@ -175,12 +100,7 @@ export default function StandaloneBalancesDisplay() {
                 <Col span={9}>{balances && balances.wallet}</Col>
                 <Col span={6} style={{ paddingTop: 8 }}></Col>
                 <Col span={9} style={{ paddingTop: 8 }}>
-                  {/* <ActionButton
-                    size="small"
-                    onClick={() => setBaseOrQuote(baseOrQuote)}
-                  >
-                    Deposit
-                  </ActionButton> */}
+
                 </Col>
               </Row>
 
@@ -198,7 +118,7 @@ export default function StandaloneBalancesDisplay() {
                         (account) => account.effectiveMint.toBase58() === mint,
                       )
                       .sort((a, b) =>
-                        a.pubkey.toString() === wallet?.publicKey.toString()
+                        a.pubkey.toString() === publicKey?.toString()
                           ? -1
                           : 1,
                       )}

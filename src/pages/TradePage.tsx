@@ -19,7 +19,6 @@ import {
   useMarket,
   useMarketsList,
   useMarkPrice,
-  useUnmigratedDeprecatedMarkets,
 } from '../utils/markets';
 import { notify } from '../utils/notifications';
 import { MarketInfo } from '../utils/types';
@@ -27,13 +26,7 @@ import { MarketInfo } from '../utils/types';
 const { Option, OptGroup } = Select;
 
 const Wrapper = styled.div`
-  background: rgb(28, 28, 28);
-  background: radial-gradient(
-    circle,
-    rgba(28, 28, 28, 1) 0%,
-    rgba(6, 6, 6, 1) 50%,
-    rgba(48, 24, 50, 1) 100%
-  );
+  
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -76,7 +69,6 @@ function TradePageInner() {
   // const markets = useMarketsList();
   const [handleDeprecated, setHandleDeprecated] = useState(false);
   const [addMarketVisible, setAddMarketVisible] = useState(false);
-  const deprecatedMarkets = useUnmigratedDeprecatedMarkets();
   const markPrice = useMarkPrice();
 
   // const [dimensions, setDimensions] = useState({
@@ -225,7 +217,7 @@ function MarketSelector({
       showSearch
       size={'large'}
       bordered={false}
-      style={{ width: 360, border: 1 }}
+      style={{ width: 360, border: 1, cursor: 'pointer' }}
       placeholder={placeholder || 'Select a market'}
       optionFilterProp="name"
       onSelect={onSetMarketAddress}

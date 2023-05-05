@@ -1,10 +1,14 @@
 import { AccountInfo, Connection, PublicKey } from '@solana/web3.js';
-import { Market, OpenOrders } from '@project-serum/serum';
-import { Event } from '@project-serum/serum/lib/queue';
-import { Order } from '@project-serum/serum/lib/market';
-import { WalletAdapter } from '../wallet-adapters';
+import { Market, OpenOrders } from '@openbook-dex/openbook';
+import { Event } from '@openbook-dex/openbook/lib/queue';
+import { Order } from '@openbook-dex/openbook/lib/market';
+import { BaseSignerWalletAdapter } from '@solana/wallet-adapter-base';
 
 export interface ConnectionContextValues {
+  priorityFee?: number;
+  setPriorityFee: (priorityFee?: number) => void;
+  computeUnits?: number;
+  setComputeUnits: (computeUnits?: number) => void;
   endpoint: string;
   setEndpoint: (newEndpoint: string) => void;
   connection: Connection;
@@ -14,7 +18,7 @@ export interface ConnectionContextValues {
 }
 
 export interface WalletContextValues {
-  wallet: WalletAdapter | undefined;
+  wallet: BaseSignerWalletAdapter;
   connected: boolean;
   providerUrl: string;
   setProviderUrl: (newProviderUrl: string) => void;

@@ -8,8 +8,8 @@ import {
 import OpenOrderTable from '../components/UserInfoTable/OpenOrderTable';
 import { Button, Row } from 'antd';
 import { OrderWithMarketAndMarketName } from '../utils/types';
-import { useWallet } from '../utils/wallet';
 import WalletConnect from '../components/WalletConnect';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 export default function OpenOrdersPage() {
   const { connected } = useWallet();
@@ -52,6 +52,7 @@ export default function OpenOrdersPage() {
   }
 
   return (
+    //@ts-ignore
     <FloatingElement style={{ flex: 1, paddingTop: 10 }}>
       <Button onClick={refreshOpenOrders} loading={!loaded}>
         Refresh

@@ -37,7 +37,7 @@ const MENU = [
   },
   {
     title: 'Swap',
-    link: 'https://app.step.finance/#/swap/add?a=6Y7LbYB3tfGBG6CSkyssoxdtHb77AEMTRVXe8JUJRwZ7&b=StepAscQoEioFxxWGnh2sLBDFp9d8rvKz2Yp39iDpyT',
+    link: 'https://jup.ag/swap/DINO-SOL',
   },
   {
     title: 'SFTs',
@@ -114,7 +114,6 @@ export default function TopBar() {
     ? location.pathname
     : getTradePageUrl();
 
-  const { SubMenu } = Menu;
 
   const menuDiv = (
     <Menu

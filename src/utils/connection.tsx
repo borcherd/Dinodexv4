@@ -1,42 +1,16 @@
-import { Account, AccountInfo, Connection, PublicKey } from '@solana/web3.js';
-import tuple from 'immutable-tuple';
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
-import { setCache, useAsyncData } from './fetch-loop';
-import { ConnectionContextValues, EndpointInfo } from './types';
 import { useLocalStorageState } from './utils';
-
-
-export const endpoints = [
-  // { url: 'https://raydium.rpcpool.com', weight: 30 },
-  { url: 'https://solana-api.tt-prod.net', weight: 100 }
-  // { url: 'https://raydium.genesysgo.net', weight: 100 }
-]
-
-export function getRandomEndpoint() {
-  let pointer = 0
-  const random = Math.random() * 100
-  let api = endpoints[0].url
-
-  for (const endpoint of endpoints) {
-    if (random > pointer + endpoint.weight) {
-      pointer += pointer + endpoint.weight
-    } else if (random >= pointer && random < pointer + endpoint.weight) {
-      api = endpoint.url
-      break
-    } else {
-      api = endpoint.url
-      break
-    }
-  }
-
-  return api
-}
+import { Account, AccountInfo, Connection, PublicKey } from '@solana/web3.js';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { setCache, useAsyncData } from './fetch-loop';
+import tuple from 'immutable-tuple';
+import { ConnectionContextValues, EndpointInfo } from './types';
 
 export const ENDPOINTS: EndpointInfo[] = [
   {
     name: 'mainnet-beta',
-    // endpoint: 'https://solana-api.projectserum.com',
-    endpoint: getRandomEndpoint(),
+    endpoint:
+      process.env.REACT_APP_SOLANA_RPC_ENDPOINT ||
+      'https://solana-api.projectserum.com',
     custom: false,
   },
   { name: 'localnet', endpoint: 'http://127.0.0.1:8899', custom: false },
@@ -44,9 +18,8 @@ export const ENDPOINTS: EndpointInfo[] = [
 
 const accountListenerCount = new Map();
 
-const ConnectionContext: React.Context<null | ConnectionContextValues> = React.createContext<null | ConnectionContextValues>(
-  null,
-);
+const ConnectionContext: React.Context<null | ConnectionContextValues> =
+  React.createContext<null | ConnectionContextValues>(null);
 
 export function ConnectionProvider({ children }) {
   const [endpoint, setEndpoint] = useLocalStorageState<string>(
@@ -58,12 +31,18 @@ export function ConnectionProvider({ children }) {
   >('customConnectionEndpoints', []);
   const availableEndpoints = ENDPOINTS.concat(customEndpoints);
 
-  const connection = useMemo(() => new Connection(endpoint, 'recent'), [
-    endpoint,
-  ]);
-  const sendConnection = useMemo(() => new Connection(endpoint, 'recent'), [
-    endpoint,
-  ]);
+  const connection = useMemo(
+    () => new Connection(endpoint, 'recent'),
+    [endpoint],
+  );
+  const sendConnection = useMemo(
+    () => new Connection(endpoint, 'recent'),
+    [endpoint],
+  );
+  const [priorityFee, setPriorityFee] = useState<number | undefined>(undefined);
+  const [computeUnits, setComputeUnits] = useState<number | undefined>(
+    undefined,
+  );
 
   // The websocket library solana/web3.js uses closes its websocket connection when the subscription list
   // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.
@@ -102,6 +81,10 @@ export function ConnectionProvider({ children }) {
   return (
     <ConnectionContext.Provider
       value={{
+        priorityFee,
+        setPriorityFee,
+        computeUnits,
+        setComputeUnits,
         endpoint,
         setEndpoint,
         connection,
@@ -137,6 +120,10 @@ export function useConnectionConfig() {
     throw new Error('Missing connection context');
   }
   return {
+    priorityFee: context.priorityFee,
+    setPriorityFee: context.setPriorityFee,
+    computeUnits: context.computeUnits,
+    setComputeUnits: context.setComputeUnits,
     endpoint: context.endpoint,
     endpointInfo: context.availableEndpoints.find(
       (info) => info.endpoint === context.endpoint,

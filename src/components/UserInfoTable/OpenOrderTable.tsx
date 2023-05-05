@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
+import DataTable from '../layout/DataTable';
 
 import styled from 'styled-components';
-import { Button, Col, Row } from 'antd';
+import { Button, Col, Row, Tag } from 'antd';
 import { cancelOrder } from '../../utils/send';
-import { useWallet } from '../../utils/wallet';
-import { useSendConnection } from '../../utils/connection';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useConnectionConfig, useSendConnection } from '../../utils/connection';
 import { notify } from '../../utils/notifications';
+import { DeleteOutlined } from '@ant-design/icons';
 import { OrderWithMarketAndMarketName } from '../../utils/types';
+import { BaseSignerWalletAdapter } from '@solana/wallet-adapter-base';
 
 const CancelButton = styled(Button)`
   color: rgba(241, 241, 242, 1);
@@ -14,7 +17,7 @@ const CancelButton = styled(Button)`
   border: 1px solid #C200FB;
   border-radius: 4px;
   width: 65px;
-  height: 20px;
+  height: 24px;
   font-size: 10;
   padding: 0;
   margin: 0;
@@ -33,25 +36,29 @@ export default function OpenOrderTable({
   loading?: boolean;
   marketFilter?: boolean;
 }) {
-  let { wallet } = useWallet();
+  let { wallet , publicKey} = useWallet();
   let connection = useSendConnection();
 
   const [cancelId, setCancelId] = useState(null);
+  const { priorityFee, computeUnits } = useConnectionConfig();
 
   async function cancel(order) {
     setCancelId(order?.orderId);
     try {
-      if (wallet) {
+      if (!wallet || !publicKey) {
+        return null;
+      }
+
       await cancelOrder({
         order,
         market: order.market,
         connection,
-        wallet,
+        wallet: wallet.adapter as BaseSignerWalletAdapter,
+        userPublicKey: publicKey,
+        priorityFee,
+        computeUnits,
       });
-    } else {
-      throw Error('Error cancelling order')
-    }
-    } catch (e) {
+    } catch (e: any) {
       notify({
         message: 'Error cancelling order',
         description: e.message,

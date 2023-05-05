@@ -4,7 +4,6 @@ import { Button, Row } from 'antd';
 import { settleAllFunds } from '../../utils/send';
 import { notify } from '../../utils/notifications';
 import { useConnection } from '../../utils/connection';
-import { useWallet } from '../../utils/wallet';
 import {
   useAllMarkets,
   useSelectedTokenAccounts,
@@ -13,6 +12,8 @@ import {
 import StandaloneTokenAccountsSelect from '../StandaloneTokenAccountSelect';
 import { abbreviateAddress } from '../../utils/utils';
 import { PublicKey } from '@solana/web3.js';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { BaseSignerWalletAdapter } from '@solana/wallet-adapter-base';
 
 export default function WalletBalancesTable({
   walletBalances,
@@ -26,7 +27,7 @@ export default function WalletBalancesTable({
   }[];
 }) {
   const connection = useConnection();
-  const { wallet, connected } = useWallet();
+  const { wallet, connected, publicKey } = useWallet();
   const [selectedTokenAccounts] = useSelectedTokenAccounts();
   const [tokenAccounts, tokenAccountsConnected] = useTokenAccounts();
   const [allMarkets, allMarketsConnected] = useAllMarkets();
@@ -35,7 +36,7 @@ export default function WalletBalancesTable({
   async function onSettleFunds() {
     setSettlingFunds(true);
     try {
-      if (!wallet) {
+      if (!wallet || !publicKey) {
         notify({
           message: 'Wallet not connected',
           description: 'Wallet not connected',
@@ -64,12 +65,14 @@ export default function WalletBalancesTable({
         connection,
         tokenAccounts,
         selectedTokenAccounts,
-        wallet,
+        wallet: wallet.adapter as BaseSignerWalletAdapter,
+        userPublicKey: publicKey,
         markets: allMarkets.map((marketInfo) => marketInfo.market),
       });
     } catch (e) {
       notify({
         message: 'Error settling funds',
+        //@ts-ignore
         description: e.message,
         type: 'error',
       });
