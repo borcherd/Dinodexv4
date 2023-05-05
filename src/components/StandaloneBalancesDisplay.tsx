@@ -7,10 +7,10 @@ import {
   useTokenAccounts
 } from '../utils/markets';
 import { Balances } from '../utils/types';
-import { useWallet } from '../utils/wallet';
 import DepositDialog from './DepositDialog';
 import FloatingElement from './layout/FloatingElement';
 import StandaloneTokenAccountsSelect from './StandaloneTokenAccountSelect';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 const RowBox = styled(Row)`
   padding-bottom: 20px;
@@ -21,7 +21,7 @@ const RowBox = styled(Row)`
 export default function StandaloneBalancesDisplay() {
   const { baseCurrency, quoteCurrency, market } = useMarket();
   const balances = useBalances();
-  const { wallet, connected } = useWallet();
+  const { publicKey, connected } = useWallet();
   const [baseOrQuote, setBaseOrQuote] = useState('');
   const [tokenAccounts] = useTokenAccounts();
   const baseCurrencyBalances =
@@ -118,7 +118,7 @@ export default function StandaloneBalancesDisplay() {
                         (account) => account.effectiveMint.toBase58() === mint,
                       )
                       .sort((a, b) =>
-                        a.pubkey.toString() === wallet?.publicKey.toString()
+                        a.pubkey.toString() === publicKey?.toString()
                           ? -1
                           : 1,
                       )}

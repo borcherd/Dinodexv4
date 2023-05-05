@@ -1,13 +1,13 @@
 import { Col, Row } from 'antd';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { useWallet } from 'utils/wallet';
 import DeprecatedMarketsInstructions from '../../components/DeprecatedMarketsInstructions';
 import Orderbook from '../../components/Orderbook';
 import TradeForm from '../../components/TradeForm';
 import UserInfoTable from '../../components/UserInfoTable';
 import { MarketProvider, useBalances, useMarket } from '../../utils/markets';
 import * as _consts from './NftMarketplace.consts';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 const Wrapper = styled.div`
   background: rgb(28, 28, 28);

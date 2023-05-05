@@ -79,6 +79,10 @@ input[type=number]:focus::-webkit-inner-spin-button {
   
 }
 
+.ant-select-show-search.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+  cursor: pointer;
+}
+
 @-webkit-keyframes highlight {
   from { background-color: #d44eb7;}
   to {background-color: #1A2029;}

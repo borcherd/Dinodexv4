@@ -14,7 +14,7 @@ export default function Index({ smallScreen, market }) {
       <FloatingElement style={{ flex: 1, paddingTop: 4 }}>
         <Row>
           <Col
-            span={24 / (market && market.supportsSrmFeeDiscounts ? 4 : 3)}
+            span={24 / 3}
             onClick={() => setActiveKeyStr('orders')}
             style={{
               width: '50%',
@@ -31,12 +31,13 @@ export default function Index({ smallScreen, market }) {
                   ? '#F1F1F2'
                   : 'rgba(241, 241, 242, 0.5)',
               padding: '12px 0 12px',
+              cursor: 'pointer',
             }}
           >
             Open Orders
           </Col>
           <Col
-            span={24 / (market && market.supportsSrmFeeDiscounts ? 4 : 3)}
+            span={24 / 3}
             onClick={() => setActiveKeyStr('fills')}
             style={{
               width: '50%',
@@ -52,12 +53,13 @@ export default function Index({ smallScreen, market }) {
                   ? '#F1F1F2'
                   : 'rgba(241, 241, 242, 0.5)',
               padding: '12px 0 12px',
+              cursor: 'pointer',
             }}
           >
             Recent Trade History
           </Col>
           <Col
-            span={24 / (market && market.supportsSrmFeeDiscounts ? 4 : 3)}
+            span={24 / 3}
             onClick={() => setActiveKeyStr('balances')}
             style={{
               width: '50%',
@@ -74,34 +76,11 @@ export default function Index({ smallScreen, market }) {
                   ? '#F1F1F2'
                   : 'rgba(241, 241, 242, 0.5)',
               padding: '12px 0 12px',
+              cursor: 'pointer',
             }}
           >
             Balances
           </Col>
-          {market && market.supportsSrmFeeDiscounts ? (
-            <Col
-              span={24 / (market && market.supportsSrmFeeDiscounts ? 4 : 3)}
-              onClick={() => setActiveKeyStr('fees')}
-              style={{
-                width: '50%',
-                textAlign: 'center',
-                border: 'transparent',
-                borderBottom:
-                  activeKeyStr === 'fees' ? '2px solid #D44EB7' : '',
-                background: 'transparent',
-                fontSize: 14,
-                fontStyle: 'normal',
-                fontWeight: 600,
-                color:
-                  activeKeyStr === 'fees'
-                    ? '#F1F1F2'
-                    : 'rgba(241, 241, 242, 0.5)',
-                padding: '12px 0 12px',
-              }}
-            >
-              Fee Discounts
-            </Col>
-          ) : null}
         </Row>
         <div
           style={{
@@ -123,7 +102,7 @@ export default function Index({ smallScreen, market }) {
       <FloatingElement style={{ flex: 1, paddingTop: 4 }}>
         <Row>
           <Col
-            span={24 / (market && market.supportsSrmFeeDiscounts ? 4 : 3)}
+            span={24 / 3}
             onClick={() => setActiveKeyStr('orders')}
             style={{
               height: 42,
@@ -141,12 +120,13 @@ export default function Index({ smallScreen, market }) {
                   ? '#F1F1F2'
                   : 'rgba(241, 241, 242, 0.5)',
               padding: '12px 0 12px',
+              cursor: 'pointer',
             }}
           >
             Open Orders
           </Col>
           <Col
-            span={24 / (market && market.supportsSrmFeeDiscounts ? 4 : 3)}
+            span={24 / 3}
             onClick={() => setActiveKeyStr('fills')}
             style={{
               height: 42,
@@ -163,12 +143,13 @@ export default function Index({ smallScreen, market }) {
                   ? '#F1F1F2'
                   : 'rgba(241, 241, 242, 0.5)',
               padding: '12px 0 12px',
+              cursor: 'pointer',
             }}
           >
             Recent Trade History
           </Col>
           <Col
-            span={24 / (market && market.supportsSrmFeeDiscounts ? 4 : 3)}
+            span={24 / 3}
             onClick={() => setActiveKeyStr('balances')}
             style={{
               height: 42,
@@ -186,35 +167,11 @@ export default function Index({ smallScreen, market }) {
                   ? '#F1F1F2'
                   : 'rgba(241, 241, 242, 0.5)',
               padding: '12px 0 12px',
+              cursor: 'pointer',
             }}
           >
             Balances
           </Col>
-          {market && market.supportsSrmFeeDiscounts ? (
-            <Col
-              span={24 / (market && market.supportsSrmFeeDiscounts ? 4 : 3)}
-              onClick={() => setActiveKeyStr('fees')}
-              style={{
-                height: 42,
-                width: '50%',
-                textAlign: 'center',
-                border: 'transparent',
-                borderBottom:
-                  activeKeyStr === 'fees' ? '2px solid #D44EB7' : '',
-                background: 'transparent',
-                fontSize: 14,
-                fontStyle: 'normal',
-                fontWeight: 600,
-                color:
-                  activeKeyStr === 'fees'
-                    ? '#F1F1F2'
-                    : 'rgba(241, 241, 242, 0.5)',
-                padding: '12px 0 12px',
-              }}
-            >
-              Fee Discounts
-            </Col>
-          ) : null}
         </Row>
         <div
           style={{

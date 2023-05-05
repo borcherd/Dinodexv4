@@ -3,7 +3,7 @@ import { AdminControlledPoolInstructions, PoolInfo } from '@openbook-dex/pool';
 import { TokenInstructions } from '@openbook-dex/openbook';
 import FloatingElement from '../../../components/layout/FloatingElement';
 import { useConnection } from '../../../utils/connection';
-import { useWallet } from '../../../utils/wallet';
+import { useWallet } from '@solana/wallet-adapter-react';
 import {
   getSelectedTokenAccountForMint,
   useTokenAccounts,
@@ -22,6 +22,7 @@ import {
   getAssociatedTokenAddress,
 } from '@openbook-dex/associated-token';
 import { parseTokenMintData, useMintToTickers } from '../../../utils/tokens';
+import { BaseSignerWalletAdapter } from '@solana/wallet-adapter-base';
 import BN from 'bn.js';
 import { refreshAllCaches } from '../../../utils/fetch-loop';
 
@@ -61,22 +62,26 @@ interface TabParams {
 
 function PauseUnpauseTab({ poolInfo }: TabParams) {
   const connection = useConnection();
-  const { wallet, connected } = useWallet();
+  const { wallet, connected , publicKey} = useWallet();
   const [submitting, setSubmitting] = useState(false);
 
   async function sendPause() {
-    if (!connected || !wallet) {
+    if (!connected || !wallet || !publicKey) {
       return;
     }
     setSubmitting(true);
     try {
       const transaction = new Transaction();
       transaction.add(AdminControlledPoolInstructions.pause(poolInfo));
-      await sendTransaction({ connection, wallet, transaction });
-    } catch (e) {
+      await sendTransaction({
+        connection,
+        wallet: wallet.adapter as BaseSignerWalletAdapter,
+        userPublicKey: publicKey,
+        transaction,
+      });
+    } catch (e: any) {
       notify({
         message: 'Error pausing pool',
-        //@ts-ignore
         description: e.message,
         type: 'error',
       });
@@ -86,18 +91,22 @@ function PauseUnpauseTab({ poolInfo }: TabParams) {
   }
 
   async function sendUnpause() {
-    if (!connected || !wallet) {
+    if (!connected || !wallet || !publicKey) {
       return;
     }
     setSubmitting(true);
     try {
       const transaction = new Transaction();
       transaction.add(AdminControlledPoolInstructions.unpause(poolInfo));
-      await sendTransaction({ connection, wallet, transaction });
-    } catch (e) {
+      await sendTransaction({
+        connection,
+        wallet: wallet.adapter as BaseSignerWalletAdapter,
+        userPublicKey: publicKey,
+        transaction,
+      });
+    } catch (e: any) {
       notify({
         message: 'Error unpausing pool',
-        //@ts-ignore
         description: e.message,
         type: 'error',
       });
@@ -121,7 +130,7 @@ function PauseUnpauseTab({ poolInfo }: TabParams) {
 function AddAssetTab({ poolInfo }: TabParams) {
   const connection = useConnection();
   const [address, setAddress] = useState('');
-  const { wallet, connected } = useWallet();
+  const { connected, publicKey } = useWallet();
   const canSubmit = connected && address;
   const [onSubmit, submitting] = useOnSubmitHandler(
     'adding asset to pool',
@@ -132,10 +141,10 @@ function AddAssetTab({ poolInfo }: TabParams) {
         mintAddress,
       );
       const transaction = new Transaction();
-      if (!(await connection.getAccountInfo(vaultAddress)) && wallet) {
+      if (!(await connection.getAccountInfo(vaultAddress)) && publicKey) {
         transaction.add(
           await createAssociatedTokenAccount(
-            wallet.publicKey,
+            publicKey,
             poolInfo.state.vaultSigner,
             mintAddress,
           ),
@@ -202,7 +211,7 @@ function DepositTab({ poolInfo }: TabParams) {
   const [quantity, setQuantity] = useState('');
 
   const connection = useConnection();
-  const { wallet, connected } = useWallet();
+  const { connected, publicKey } = useWallet();
   const [tokenAccounts] = useTokenAccounts();
   const canSubmit =
     connected && address && tokenAccounts && parseFloat(quantity);
@@ -210,7 +219,7 @@ function DepositTab({ poolInfo }: TabParams) {
   const [onSubmit, submitting] = useOnSubmitHandler(
     'depositing to pool',
     async () => {
-      if (!wallet) {
+      if (!publicKey) {
         throw new Error('Wallet is not connected');
       }
 
@@ -241,7 +250,7 @@ function DepositTab({ poolInfo }: TabParams) {
 
       const wrappedSolAccount =
         mintAddress.equals(TokenInstructions.WRAPPED_SOL_MINT) &&
-        walletTokenAccount.pubkey.equals(wallet.publicKey)
+        walletTokenAccount.pubkey.equals(publicKey)
           ? new Account()
           : null;
 
@@ -250,7 +259,7 @@ function DepositTab({ poolInfo }: TabParams) {
       if (wrappedSolAccount) {
         transaction.add(
           SystemProgram.createAccount({
-            fromPubkey: wallet.publicKey,
+            fromPubkey: publicKey,
             lamports: parsedQuantity + 2.04e6,
             newAccountPubkey: wrappedSolAccount.publicKey,
             programId: TokenInstructions.TOKEN_PROGRAM_ID,
@@ -259,18 +268,18 @@ function DepositTab({ poolInfo }: TabParams) {
           TokenInstructions.initializeAccount({
             account: wrappedSolAccount.publicKey,
             mint: TokenInstructions.WRAPPED_SOL_MINT,
-            owner: wallet.publicKey,
+            owner: publicKey,
           }),
           TokenInstructions.transfer({
             source: wrappedSolAccount.publicKey,
             destination: vaultAddress,
             amount: parsedQuantity,
-            owner: wallet.publicKey,
+            owner: publicKey,
           }),
           TokenInstructions.closeAccount({
             source: wrappedSolAccount.publicKey,
             destination: walletTokenAccount.pubkey,
-            owner: wallet.publicKey,
+            owner: publicKey,
           }),
         );
         signers.push(wrappedSolAccount);
@@ -280,7 +289,7 @@ function DepositTab({ poolInfo }: TabParams) {
             source: walletTokenAccount.pubkey,
             destination: vaultAddress,
             amount: parsedQuantity,
-            owner: wallet.publicKey,
+            owner: publicKey,
           }),
         );
       }
@@ -314,7 +323,7 @@ function WithdrawTab({ poolInfo }: TabParams) {
   const [quantity, setQuantity] = useState('');
 
   const connection = useConnection();
-  const { wallet, connected } = useWallet();
+  const { connected, publicKey } = useWallet();
   const [tokenAccounts] = useTokenAccounts();
   const canSubmit =
     connected && address && tokenAccounts && parseFloat(quantity);
@@ -322,7 +331,7 @@ function WithdrawTab({ poolInfo }: TabParams) {
   const [onSubmit, submitting] = useOnSubmitHandler(
     'withdrawing from pool',
     async () => {
-      if (!wallet) {
+      if (!publicKey) {
         throw new Error('Wallet is not connected');
       }
 
@@ -353,7 +362,7 @@ function WithdrawTab({ poolInfo }: TabParams) {
 
       const wrappedSolAccount =
         mintAddress.equals(TokenInstructions.WRAPPED_SOL_MINT) &&
-        walletTokenAccount.pubkey.equals(wallet.publicKey)
+        walletTokenAccount.pubkey.equals(publicKey)
           ? new Account()
           : null;
 
@@ -362,7 +371,7 @@ function WithdrawTab({ poolInfo }: TabParams) {
       if (wrappedSolAccount) {
         transaction.add(
           SystemProgram.createAccount({
-            fromPubkey: wallet.publicKey,
+            fromPubkey: publicKey,
             lamports: 2.04e6,
             newAccountPubkey: wrappedSolAccount.publicKey,
             programId: TokenInstructions.TOKEN_PROGRAM_ID,
@@ -371,7 +380,7 @@ function WithdrawTab({ poolInfo }: TabParams) {
           TokenInstructions.initializeAccount({
             account: wrappedSolAccount.publicKey,
             mint: TokenInstructions.WRAPPED_SOL_MINT,
-            owner: wallet.publicKey,
+            owner: publicKey,
           }),
         );
         signers.push(wrappedSolAccount);
@@ -380,7 +389,7 @@ function WithdrawTab({ poolInfo }: TabParams) {
         AdminControlledPoolInstructions.approveDelegate(
           poolInfo,
           vaultAddress,
-          wallet.publicKey,
+          publicKey,
           new BN(parsedQuantity),
         ),
       );
@@ -390,12 +399,12 @@ function WithdrawTab({ poolInfo }: TabParams) {
             source: vaultAddress,
             destination: wrappedSolAccount.publicKey,
             amount: parsedQuantity,
-            owner: wallet.publicKey,
+            owner: publicKey,
           }),
           TokenInstructions.closeAccount({
             source: wrappedSolAccount.publicKey,
             destination: walletTokenAccount.pubkey,
-            owner: wallet.publicKey,
+            owner: publicKey,
           }),
         );
       } else {
@@ -404,7 +413,7 @@ function WithdrawTab({ poolInfo }: TabParams) {
             source: vaultAddress,
             destination: walletTokenAccount.pubkey,
             amount: parsedQuantity,
-            owner: wallet.publicKey,
+            owner: publicKey,
           }),
         );
       }
@@ -472,7 +481,7 @@ function useOnSubmitHandler(
   refresh = false,
 ): [(FormEvent) => void, boolean] {
   const connection = useConnection();
-  const { wallet, connected } = useWallet();
+  const { connected, wallet , publicKey} = useWallet();
   const [submitting, setSubmitting] = useState(false);
 
   async function onSubmit(e: FormEvent) {
@@ -482,18 +491,23 @@ function useOnSubmitHandler(
     }
     setSubmitting(true);
     try {
-      if (!connected || !wallet) {
+      if (!connected || !wallet || !publicKey) {
         throw new Error('Wallet not connected');
       }
       const [transaction, signers] = await makeTransaction();
-      await sendTransaction({ connection, wallet, transaction, signers });
+      await sendTransaction({
+        connection,
+        wallet: wallet.adapter as BaseSignerWalletAdapter,
+        userPublicKey: publicKey,
+        transaction,
+        signers,
+      });
       if (refresh) {
         refreshAllCaches();
       }
-    } catch (e) {
+    } catch (e: any) {
       notify({
         message: `Error ${description}`,
-        //@ts-ignore
         description: e.message,
         type: 'error',
       });

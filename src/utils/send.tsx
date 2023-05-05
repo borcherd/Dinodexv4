@@ -1,5 +1,10 @@
 import { notify } from './notifications';
-import { getDecimalCount, sleep } from './utils';
+import {
+  addPriorityFeesIfNecessary,
+  getDecimalCount,
+  mergeTransactions,
+  sleep,
+} from './utils';
 import { getSelectedTokenAccountForMint } from './markets';
 import {
   Account,
@@ -24,6 +29,7 @@ import {
   Market,
   OpenOrders,
   parseInstructionErrorResponse,
+  TOKEN_MINTS,
   TokenInstructions,
 } from '@openbook-dex/openbook';
 import { SelectedTokenAccounts, TokenAccount } from './types';
@@ -31,26 +37,45 @@ import { Order } from '@openbook-dex/openbook/lib/market';
 import { Buffer } from 'buffer';
 import assert from 'assert';
 import { struct } from 'superstruct';
-import { WalletAdapter } from '../wallet-adapters';
-import { getTokenByMintAddress } from './tokens';
+import {
+  BaseSignerWalletAdapter,
+  WalletAdapter,
+} from '@solana/wallet-adapter-base';
+
+export const REQUEST_QUEUE_ITEM_SIZE = 88;
+export const EVENT_QUEUE_ITEM_SIZE = 80;
+export const ORDERBOOK_ITEM_SIZE = 72;
+export const QUEUE_HEADER_SIZE = 44;
+export const ORDERBOOK_HEADER_SIZE = 52;
+
+export function calculateRequestQueueSize(requestQueueLength): number {
+  return requestQueueLength * REQUEST_QUEUE_ITEM_SIZE + QUEUE_HEADER_SIZE;
+}
+
+export function calculateOrderbookSize(orderbookLength): number {
+  return orderbookLength * ORDERBOOK_ITEM_SIZE + ORDERBOOK_HEADER_SIZE;
+}
+
+export function calculateEventQueueSize(eventQueueSize): number {
+  return eventQueueSize * EVENT_QUEUE_ITEM_SIZE + QUEUE_HEADER_SIZE;
+}
 
 export async function createTokenAccountTransaction({
-  connection,
-  wallet,
+  userPublicKey,
   mintPublicKey,
 }: {
-  connection: Connection;
-  wallet: WalletAdapter;
+  userPublicKey: PublicKey;
   mintPublicKey: PublicKey;
 }): Promise<{
   transaction: Transaction;
   newAccountPubkey: PublicKey;
 }> {
+  assert(userPublicKey, 'Expected `publicKey` to be non-null');
   const ata = await Token.getAssociatedTokenAddress(
     ASSOCIATED_TOKEN_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
     mintPublicKey,
-    wallet.publicKey,
+    userPublicKey,
   );
   const transaction = new Transaction();
   transaction.add(
@@ -59,8 +84,8 @@ export async function createTokenAccountTransaction({
       TOKEN_PROGRAM_ID,
       mintPublicKey,
       ata,
-      wallet.publicKey,
-      wallet.publicKey,
+      userPublicKey,
+      userPublicKey,
     ),
   );
   return {
@@ -74,21 +99,27 @@ export async function settleFunds({
   openOrders,
   connection,
   wallet,
+  userPublicKey,
   baseCurrencyAccount,
   quoteCurrencyAccount,
   sendNotification = true,
   usdcRef = undefined,
   usdtRef = undefined,
+  priorityFee = undefined,
+  computeUnits = undefined,
 }: {
   market: Market;
   openOrders: OpenOrders;
   connection: Connection;
-  wallet: WalletAdapter;
+  wallet: BaseSignerWalletAdapter;
+  userPublicKey: PublicKey;
   baseCurrencyAccount: TokenAccount;
   quoteCurrencyAccount: TokenAccount;
   sendNotification?: boolean;
   usdcRef?: PublicKey;
   usdtRef?: PublicKey;
+  priorityFee?: number;
+  computeUnits?: number;
 }): Promise<string | undefined> {
   if (
     !market ||
@@ -102,15 +133,13 @@ export async function settleFunds({
     }
     return;
   }
-
   let createAccountTransaction: Transaction | undefined;
   let baseCurrencyAccountPubkey = baseCurrencyAccount?.pubkey;
   let quoteCurrencyAccountPubkey = quoteCurrencyAccount?.pubkey;
 
   if (!baseCurrencyAccountPubkey) {
     const result = await createTokenAccountTransaction({
-      connection,
-      wallet,
+      userPublicKey,
       mintPublicKey: market.baseMintAddress,
     });
     baseCurrencyAccountPubkey = result?.newAccountPubkey;
@@ -118,8 +147,7 @@ export async function settleFunds({
   }
   if (!quoteCurrencyAccountPubkey) {
     const result = await createTokenAccountTransaction({
-      connection,
-      wallet,
+      userPublicKey,
       mintPublicKey: market.quoteMintAddress,
     });
     quoteCurrencyAccountPubkey = result?.newAccountPubkey;
@@ -127,51 +155,64 @@ export async function settleFunds({
   }
   let referrerQuoteWallet: PublicKey | null = null;
   if (market.supportsReferralFees) {
-    const quoteToken = getTokenByMintAddress(
-      market.quoteMintAddress.toBase58(),
-    );
-    if (quoteToken?.referrer) {
-      referrerQuoteWallet = new PublicKey(quoteToken?.referrer);
+    const usdt = TOKEN_MINTS.find(({ name }) => name === 'USDT');
+    const usdc = TOKEN_MINTS.find(({ name }) => name === 'USDC');
+    if (usdtRef && usdt && market.quoteMintAddress.equals(usdt.address)) {
+      referrerQuoteWallet = usdtRef;
+    } else if (
+      usdcRef &&
+      usdc &&
+      market.quoteMintAddress.equals(usdc.address)
+    ) {
+      referrerQuoteWallet = usdcRef;
     }
   }
-  const {
-    transaction: settleFundsTransaction,
-    signers: settleFundsSigners,
-  } = await market.makeSettleFundsTransaction(
-    connection,
-    openOrders,
-    baseCurrencyAccountPubkey,
-    quoteCurrencyAccountPubkey,
-    referrerQuoteWallet,
-  );
+  const { transaction: settleFundsTransaction, signers: settleFundsSigners } =
+    await market.makeSettleFundsTransaction(
+      connection,
+      openOrders,
+      baseCurrencyAccountPubkey,
+      quoteCurrencyAccountPubkey,
+      referrerQuoteWallet,
+    );
 
   let transaction = mergeTransactions([
     createAccountTransaction,
     settleFundsTransaction,
   ]);
 
+  console.log('Settling funds...');
   return await sendTransaction({
     transaction,
     signers: settleFundsSigners,
     wallet,
+    userPublicKey:userPublicKey,
     connection,
     sendingMessage: 'Settling funds...',
     sendNotification,
+    priorityFee,
+    computeUnits,
   });
 }
 
 export async function settleAllFunds({
   connection,
   wallet,
+  userPublicKey,
   tokenAccounts,
   markets,
   selectedTokenAccounts,
+  priorityFee = undefined,
+  computeUnits = undefined,
 }: {
   connection: Connection;
-  wallet: WalletAdapter;
+  wallet: BaseSignerWalletAdapter;
+  userPublicKey: PublicKey;
   tokenAccounts: TokenAccount[];
   markets: Market[];
   selectedTokenAccounts?: SelectedTokenAccounts;
+  priorityFee?: number;
+  computeUnits?: number;
 }) {
   if (!markets || !wallet || !connection || !tokenAccounts) {
     return;
@@ -191,9 +232,10 @@ export async function settleAllFunds({
     });
 
   const getOpenOrdersAccountsForProgramId = async (programId) => {
+    assert(userPublicKey, 'Expected `publicKey` to be non-null');
     const openOrdersAccounts = await OpenOrders.findForOwner(
       connection,
-      wallet.publicKey,
+      userPublicKey,
       programId,
     );
     return openOrdersAccounts.filter(
@@ -232,15 +274,15 @@ export async function settleAllFunds({
           tokenAccounts,
           baseMint,
           baseMint &&
-          selectedTokenAccounts &&
-          selectedTokenAccounts[baseMint.toBase58()],
+            selectedTokenAccounts &&
+            selectedTokenAccounts[baseMint.toBase58()],
         )?.pubkey;
         const selectedQuoteTokenAccount = getSelectedTokenAccountForMint(
           tokenAccounts,
           quoteMint,
           quoteMint &&
-          selectedTokenAccounts &&
-          selectedTokenAccounts[quoteMint.toBase58()],
+            selectedTokenAccounts &&
+            selectedTokenAccounts[quoteMint.toBase58()],
         )?.pubkey;
         if (!selectedBaseTokenAccount || !selectedQuoteTokenAccount) {
           return null;
@@ -283,15 +325,21 @@ export async function settleAllFunds({
     transaction,
     signers,
     wallet,
+    userPublicKey,
     connection,
+    priorityFee,
+    computeUnits,
   });
 }
 
 export async function cancelOrder(params: {
   market: Market;
   connection: Connection;
-  wallet: WalletAdapter;
+  wallet: BaseSignerWalletAdapter;
+  userPublicKey: PublicKey;
   order: Order;
+  priorityFee?: number;
+  computeUnits?: number;
 }) {
   return cancelOrders({ ...params, orders: [params.order] });
 }
@@ -299,26 +347,37 @@ export async function cancelOrder(params: {
 export async function cancelOrders({
   market,
   wallet,
+  userPublicKey,
   connection,
   orders,
+  priorityFee = undefined,
+  computeUnits = undefined,
 }: {
   market: Market;
-  wallet: WalletAdapter;
+  wallet: BaseSignerWalletAdapter;
+  userPublicKey: PublicKey;
   connection: Connection;
   orders: Order[];
+  priorityFee?: number;
+  computeUnits?: number;
 }) {
   const transaction = market.makeMatchOrdersTransaction(5);
+  assert(userPublicKey, 'Expected `publicKey` to be non-null');
   orders.forEach((order) => {
     transaction.add(
-      market.makeCancelOrderInstruction(connection, wallet.publicKey, order),
+      market.makeCancelOrderInstruction(connection, userPublicKey, order),
     );
   });
   transaction.add(market.makeMatchOrdersTransaction(5));
+
   return await sendTransaction({
     transaction,
     wallet,
+    userPublicKey: userPublicKey,
     connection,
     sendingMessage: 'Sending cancel...',
+    priorityFee,
+    computeUnits,
   });
 }
 
@@ -330,9 +389,12 @@ export async function placeOrder({
   market,
   connection,
   wallet,
+  userPublicKey,
   baseCurrencyAccount,
   quoteCurrencyAccount,
   feeDiscountPubkey = undefined,
+  priorityFee = undefined,
+  computeUnits = undefined,
 }: {
   side: 'buy' | 'sell';
   price: number;
@@ -340,10 +402,13 @@ export async function placeOrder({
   orderType: 'ioc' | 'postOnly' | 'limit';
   market: Market | undefined | null;
   connection: Connection;
-  wallet: WalletAdapter;
+  wallet: BaseSignerWalletAdapter;
+  userPublicKey: PublicKey;
   baseCurrencyAccount: PublicKey | undefined;
   quoteCurrencyAccount: PublicKey | undefined;
   feeDiscountPubkey: PublicKey | undefined;
+  priorityFee?: number;
+  computeUnits?: number;
 }) {
   let formattedMinOrderSize =
     market?.minOrderSize?.toFixed(getDecimalCount(market.minOrderSize)) ||
@@ -362,7 +427,7 @@ export async function placeOrder({
     notify({ message: 'Invalid size', type: 'error' });
     return;
   }
-  if (!wallet || !wallet.publicKey) {
+  if (!wallet || !userPublicKey) {
     notify({ message: 'Connect wallet', type: 'error' });
     return;
   }
@@ -392,31 +457,25 @@ export async function placeOrder({
     notify({ message: 'Price under tick size', type: 'error' });
     return;
   }
-  const owner = wallet.publicKey;
+  const owner = userPublicKey;
   const transaction = new Transaction();
   const signers: Account[] = [];
 
   if (!baseCurrencyAccount) {
-    const {
-      transaction: createAccountTransaction,
-      newAccountPubkey,
-    } = await createTokenAccountTransaction({
-      connection,
-      wallet,
-      mintPublicKey: market.baseMintAddress,
-    });
+    const { transaction: createAccountTransaction, newAccountPubkey } =
+      await createTokenAccountTransaction({
+        userPublicKey,
+        mintPublicKey: market.baseMintAddress,
+      });
     transaction.add(createAccountTransaction);
     baseCurrencyAccount = newAccountPubkey;
   }
   if (!quoteCurrencyAccount) {
-    const {
-      transaction: createAccountTransaction,
-      newAccountPubkey,
-    } = await createTokenAccountTransaction({
-      connection,
-      wallet,
-      mintPublicKey: market.quoteMintAddress,
-    });
+    const { transaction: createAccountTransaction, newAccountPubkey } =
+      await createTokenAccountTransaction({
+        userPublicKey,
+        mintPublicKey: market.quoteMintAddress,
+      });
     transaction.add(createAccountTransaction);
     quoteCurrencyAccount = newAccountPubkey;
   }
@@ -438,32 +497,31 @@ export async function placeOrder({
     orderType,
     feeDiscountPubkey: feeDiscountPubkey || null,
   };
-  console.log(params);
 
   const matchOrderstransaction = market.makeMatchOrdersTransaction(5);
   transaction.add(matchOrderstransaction);
   const startTime = getUnixTs();
-  let {
-    transaction: placeOrderTx,
-    signers: placeOrderSigners,
-  } = await market.makePlaceOrderTransaction(
-    connection,
-    params,
-    120_000,
-    120_000,
-  );
+  let { transaction: placeOrderTx, signers: placeOrderSigners } =
+    await market.makePlaceOrderTransaction(
+      connection,
+      params,
+      120_000,
+      120_000,
+    );
   const endTime = getUnixTs();
   console.log(`Creating order transaction took ${endTime - startTime}`);
   transaction.add(placeOrderTx);
   transaction.add(market.makeMatchOrdersTransaction(5));
   signers.push(...placeOrderSigners);
-
   return await sendTransaction({
     transaction,
     wallet,
+    userPublicKey,
     connection,
     signers,
     sendingMessage: 'Sending order...',
+    priorityFee,
+    computeUnits,
   });
 }
 
@@ -475,15 +533,27 @@ export async function listMarket({
   baseLotSize,
   quoteLotSize,
   dexProgramId,
+  priorityFee = undefined,
+  computeUnits = undefined,
+  eventQueueLength = 2978,
+  requestQueueLength = 63,
+  orderbookLength = 909,
 }: {
   connection: Connection;
-  wallet: WalletAdapter;
+  wallet: BaseSignerWalletAdapter;
   baseMint: PublicKey;
   quoteMint: PublicKey;
   baseLotSize: number;
   quoteLotSize: number;
   dexProgramId: PublicKey;
+  priorityFee?: number;
+  computeUnits?: number;
+  eventQueueLength?: number;
+  requestQueueLength?: number;
+  orderbookLength?: number;
 }) {
+  assert(wallet.publicKey, 'Expected `publicKey` to be non-null');
+
   const market = new Account();
   const requestQueue = new Account();
   const eventQueue = new Account();
@@ -503,7 +573,7 @@ export async function listMarket({
           dexProgramId,
         );
         return [vaultOwner, nonce];
-      } catch (e) {
+      } catch (e: any) {
         nonce.iaddn(1);
       }
     }
@@ -552,29 +622,37 @@ export async function listMarket({
     SystemProgram.createAccount({
       fromPubkey: wallet.publicKey,
       newAccountPubkey: requestQueue.publicKey,
-      lamports: await connection.getMinimumBalanceForRentExemption(5120 + 12),
-      space: 5120 + 12,
+      lamports: await connection.getMinimumBalanceForRentExemption(
+        calculateRequestQueueSize(requestQueueLength),
+      ),
+      space: calculateRequestQueueSize(requestQueueLength),
       programId: dexProgramId,
     }),
     SystemProgram.createAccount({
       fromPubkey: wallet.publicKey,
       newAccountPubkey: eventQueue.publicKey,
-      lamports: await connection.getMinimumBalanceForRentExemption(262144 + 12),
-      space: 262144 + 12,
+      lamports: await connection.getMinimumBalanceForRentExemption(
+        calculateEventQueueSize(eventQueueLength),
+      ),
+      space: calculateEventQueueSize(eventQueueLength),
       programId: dexProgramId,
     }),
     SystemProgram.createAccount({
       fromPubkey: wallet.publicKey,
       newAccountPubkey: bids.publicKey,
-      lamports: await connection.getMinimumBalanceForRentExemption(65536 + 12),
-      space: 65536 + 12,
+      lamports: await connection.getMinimumBalanceForRentExemption(
+        calculateOrderbookSize(orderbookLength),
+      ),
+      space: calculateOrderbookSize(orderbookLength),
       programId: dexProgramId,
     }),
     SystemProgram.createAccount({
       fromPubkey: wallet.publicKey,
       newAccountPubkey: asks.publicKey,
-      lamports: await connection.getMinimumBalanceForRentExemption(65536 + 12),
-      space: 65536 + 12,
+      lamports: await connection.getMinimumBalanceForRentExemption(
+        calculateOrderbookSize(orderbookLength),
+      ),
+      space: calculateOrderbookSize(orderbookLength),
       programId: dexProgramId,
     }),
     DexInstructions.initializeMarket({
@@ -597,6 +675,7 @@ export async function listMarket({
     }),
   );
 
+  // Dev Note: No priority fees are added to this transaction
   const signedTransactions = await signTransactions({
     transactionsAndSigners: [
       { transaction: tx1, signers: [baseVault, quoteVault] },
@@ -612,6 +691,8 @@ export async function listMarket({
     await sendSignedTransaction({
       signedTransaction,
       connection,
+      priorityFee,
+      computeUnits,
     });
   }
 
@@ -627,6 +708,7 @@ const DEFAULT_TIMEOUT = 15000;
 export async function sendTransaction({
   transaction,
   wallet,
+  userPublicKey,
   signers = [],
   connection,
   sendingMessage = 'Sending transaction...',
@@ -634,9 +716,12 @@ export async function sendTransaction({
   successMessage = 'Transaction confirmed',
   timeout = DEFAULT_TIMEOUT,
   sendNotification = true,
+  priorityFee = undefined,
+  computeUnits = undefined,
 }: {
   transaction: Transaction;
-  wallet: WalletAdapter;
+  wallet: BaseSignerWalletAdapter;
+  userPublicKey: PublicKey;
   signers?: Array<Account>;
   connection: Connection;
   sendingMessage?: string;
@@ -644,10 +729,13 @@ export async function sendTransaction({
   successMessage?: string;
   timeout?: number;
   sendNotification?: boolean;
+  priorityFee?: number;
+  computeUnits?: number;
 }) {
   const signedTransaction = await signTransaction({
     transaction,
     wallet,
+    userPublicKey,
     signers,
     connection,
   });
@@ -665,22 +753,29 @@ export async function sendTransaction({
 export async function signTransaction({
   transaction,
   wallet,
+  userPublicKey,
   signers = [],
   connection,
 }: {
   transaction: Transaction;
-  wallet: WalletAdapter;
+  wallet: BaseSignerWalletAdapter;
+  userPublicKey: PublicKey;
   signers?: Array<Account>;
   connection: Connection;
 }) {
+  assert(userPublicKey, 'Expected `publicKey` to be non-null');
   transaction.recentBlockhash = (
     await connection.getRecentBlockhash('max')
   ).blockhash;
-  transaction.setSigners(wallet.publicKey, ...signers.map((s) => s.publicKey));
+  transaction.setSigners(userPublicKey, ...signers.map((s) => s.publicKey));
   if (signers.length > 0) {
     transaction.partialSign(...signers);
   }
+  console.log(wallet);
+  const x : any = wallet;
+  //return await x.adapter.signTransaction(transaction)
   return await wallet.signTransaction(transaction);
+
 }
 
 export async function signTransactions({
@@ -692,16 +787,15 @@ export async function signTransactions({
     transaction: Transaction;
     signers?: Array<Account>;
   }[];
-  wallet: WalletAdapter;
+  wallet: BaseSignerWalletAdapter;
   connection: Connection;
 }) {
+  assert(wallet.publicKey, 'Expected `publicKey` to be non-null');
+  const publicKey = wallet.publicKey;
   const blockhash = (await connection.getRecentBlockhash('max')).blockhash;
   transactionsAndSigners.forEach(({ transaction, signers = [] }) => {
     transaction.recentBlockhash = blockhash;
-    transaction.setSigners(
-      wallet.publicKey,
-      ...signers.map((s) => s.publicKey),
-    );
+    transaction.setSigners(publicKey, ...signers.map((s) => s.publicKey));
     if (signers?.length > 0) {
       transaction.partialSign(...signers);
     }
@@ -719,6 +813,8 @@ export async function sendSignedTransaction({
   successMessage = 'Transaction confirmed',
   timeout = DEFAULT_TIMEOUT,
   sendNotification = true,
+  priorityFee = undefined,
+  computeUnits = undefined,
 }: {
   signedTransaction: Transaction;
   connection: Connection;
@@ -727,6 +823,8 @@ export async function sendSignedTransaction({
   successMessage?: string;
   timeout?: number;
   sendNotification?: boolean;
+  priorityFee?: number;
+  computeUnits?: number;
 }): Promise<string> {
   const rawTransaction = signedTransaction.serialize();
   const startTime = getUnixTs();
@@ -756,8 +854,7 @@ export async function sendSignedTransaction({
   })();
   try {
     await awaitTransactionSignatureConfirmation(txid, timeout, connection);
-  } catch (err) {
-        //@ts-ignore
+  } catch (err: any) {
     if (err.timeout) {
       throw new Error('Timed out awaiting confirmation on transaction');
     }
@@ -766,7 +863,7 @@ export async function sendSignedTransaction({
       simulateResult = (
         await simulateTransaction(connection, signedTransaction, 'single')
       ).value;
-    } catch (e) { }
+    } catch (e: any) {}
     if (simulateResult && simulateResult.err) {
       if (simulateResult.logs) {
         for (let i = simulateResult.logs.length - 1; i >= 0; --i) {
@@ -785,8 +882,7 @@ export async function sendSignedTransaction({
       ) {
         const parsedErrorInfo = parseInstructionErrorResponse(
           signedTransaction,
-        //@ts-ignore
-          simulateResult.err['InstructionError'],
+          simulateResult.err['InstructionError'] as any,
         );
         parsedError = parsedErrorInfo.error;
       } else {
@@ -837,7 +933,7 @@ async function awaitTransactionSignatureConfirmation(
           'recent',
         );
         console.log('Set up WS connection', txid);
-      } catch (e) {
+      } catch (e: any) {
         done = true;
         console.log('WS error in setup', txid, e);
       }
@@ -864,7 +960,7 @@ async function awaitTransactionSignatureConfirmation(
                 resolve(result);
               }
             }
-          } catch (e) {
+          } catch (e: any) {
             if (!done) {
               console.log('REST connection error: txid', txid, e);
             }
@@ -876,16 +972,6 @@ async function awaitTransactionSignatureConfirmation(
   });
   done = true;
   return result;
-}
-
-function mergeTransactions(transactions: (Transaction | undefined)[]) {
-  const transaction = new Transaction();
-  transactions
-    .filter((t): t is Transaction => t !== undefined)
-    .forEach((t) => {
-      transaction.add(t);
-    });
-  return transaction;
 }
 
 function jsonRpcResult(resultDescription: any) {
@@ -939,9 +1025,9 @@ export async function getMultipleSolanaAccounts(
   if (res.error) {
     throw new Error(
       'failed to get info about accounts ' +
-      publicKeys.map((k) => k.toBase58()).join(', ') +
-      ': ' +
-      res.error.message,
+        publicKeys.map((k) => k.toBase58()).join(', ') +
+        ': ' +
+        res.error.message,
     );
   }
   assert(typeof res.result !== 'undefined');

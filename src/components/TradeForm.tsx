@@ -11,7 +11,9 @@ import {
   useSelectedQuoteCurrencyAccount,
   useSelectedQuoteCurrencyBalances,
 } from '../utils/markets';
-
+import {
+  BaseSignerWalletAdapter,
+} from '@solana/wallet-adapter-base';
 import FloatingElement from './layout/FloatingElement';
 import { SwitchChangeEventHandler } from 'antd/es/switch';
 import { notify } from '../utils/notifications';
@@ -19,13 +21,13 @@ import { refreshCache } from '../utils/fetch-loop';
 import styled from 'styled-components';
 import tuple from 'immutable-tuple';
 import { useSendConnection } from '../utils/connection';
-import { useWallet } from '../utils/wallet';
 import {
   floorToDecimal,
   getDecimalCount,
   roundToDecimal,
 } from '../utils/utils';
 import { getUnixTs, placeOrder } from '../utils/send';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 const BuyButton = styled(Button)`
   margin: 20px 0px 0px 0px;
@@ -57,7 +59,7 @@ export default function TradeForm({
   const baseCurrencyAccount = useSelectedBaseCurrencyAccount();
   const quoteCurrencyAccount = useSelectedQuoteCurrencyAccount();
   const openOrdersAccount = useSelectedOpenOrdersAccount(true);
-  const { wallet, connected } = useWallet();
+  const { wallet, connected, publicKey } = useWallet();
   const sendConnection = useSendConnection();
   const markPrice = useMarkPrice();
   useFeeDiscountKeys();
@@ -98,11 +100,11 @@ export default function TradeForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [price, baseSize]);
 
-  const walletPubkey = wallet?.publicKey;
+  const walletPubkey = publicKey;
   useEffect(() => {
     const warmUpCache = async () => {
       try {
-        if (!wallet || !wallet.publicKey || !market) {
+        if (!wallet || !publicKey || !market) {
           console.log(`Skipping refreshing accounts`);
           return;
         }
@@ -110,9 +112,9 @@ export default function TradeForm({
         console.log(`Refreshing accounts for ${market.address}`);
         await market?.findOpenOrdersAccountsForOwner(
           sendConnection,
-          wallet.publicKey,
+          publicKey,
         );
-        await market?.findBestFeeDiscountKey(sendConnection, wallet.publicKey);
+        await market?.findBestFeeDiscountKey(sendConnection, publicKey);
         const endTime = getUnixTs();
         console.log(
           `Finished refreshing accounts for ${market.address} after ${
@@ -241,7 +243,7 @@ export default function TradeForm({
 
     setSubmitting(true);
     try {
-      if (wallet) {
+      if (wallet && publicKey) {
         await placeOrder({
           side,
           price,
@@ -249,7 +251,8 @@ export default function TradeForm({
           orderType: ioc ? 'ioc' : postOnly ? 'postOnly' : 'limit',
           market,
           connection: sendConnection,
-          wallet,
+          wallet: wallet.adapter as BaseSignerWalletAdapter,
+          userPublicKey: publicKey,
           baseCurrencyAccount: baseCurrencyAccount?.pubkey,
           quoteCurrencyAccount: quoteCurrencyAccount?.pubkey,
           feeDiscountPubkey: feeDiscountKey,
@@ -264,6 +267,7 @@ export default function TradeForm({
       console.warn(e);
       notify({
         message: 'Error placing order',
+        //@ts-ignore
         description: e.message,
         type: 'error',
       });
@@ -295,6 +299,7 @@ export default function TradeForm({
               fontWeight: 600,
               color: side === 'buy' ? '#02bf76' : 'rgba(241, 241, 242, 0.5)',
               padding: '12px 0 0 0',
+              cursor: 'pointer',
             }}
           >
             BUY
@@ -315,6 +320,7 @@ export default function TradeForm({
               fontWeight: 600,
               color: side === 'sell' ? '#F23B69' : 'rgba(241, 241, 242, 0.5)',
               padding: '12px 0 0 0',
+              cursor: 'pointer',
             }}
           >
             SELL

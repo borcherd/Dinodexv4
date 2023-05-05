@@ -5,9 +5,9 @@ import {
   getSelectedTokenAccountForMint,
 } from '../../utils/markets';
 import { useSendConnection } from '../../utils/connection';
-import { useWallet } from '../../utils/wallet';
 import { settleFunds } from '../../utils/send';
 import { notify } from '../../utils/notifications';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 export default function BalancesTable({
   balances,
@@ -17,7 +17,7 @@ export default function BalancesTable({
 }) {
   const [accounts] = useTokenAccounts();
   const connection = useSendConnection();
-  const { wallet } = useWallet();
+  const { wallet, publicKey } = useWallet();
 
   async function onSettleFunds(market, openOrders) {
     try {
@@ -25,7 +25,8 @@ export default function BalancesTable({
         market,
         openOrders,
         connection,
-        wallet,
+        wallet: wallet.adapter,
+        userPublicKey: publicKey,
         baseCurrencyAccount: getSelectedTokenAccountForMint(
           accounts,
           market?.baseMintAddress,

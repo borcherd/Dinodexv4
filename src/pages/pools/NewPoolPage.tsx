@@ -12,7 +12,6 @@ import { PublicKey } from '@solana/web3.js';
 import { useConnection } from '../../utils/connection';
 import FloatingElement from '../../components/layout/FloatingElement';
 import styled from 'styled-components';
-import { useWallet } from '../../utils/wallet';
 import { sendSignedTransaction, signTransactions } from '../../utils/send';
 import { useMintInput } from '../../components/useMintInput';
 import { PoolTransactions } from '@openbook-dex/pool';
@@ -20,6 +19,8 @@ import { useTokenAccounts } from '../../utils/markets';
 import BN from 'bn.js';
 import { notify } from '../../utils/notifications';
 import Link from '../../components/Link';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { BaseSignerWalletAdapter } from '@solana/wallet-adapter-base';
 
 const { Text, Title } = Typography;
 
@@ -53,7 +54,7 @@ const PROGRAM_ID_OPTIONS = [
 
 export default function NewPoolPage() {
   const connection = useConnection();
-  const { wallet, connected } = useWallet();
+  const { wallet, connected, publicKey } = useWallet();
   const [poolName, setPoolName] = useState('');
   const [programId, setProgramId] = useState(DEFAULT_PROGRAM_ID);
   const [initialSupply, setInitialSupply] = useState('1');
@@ -76,10 +77,10 @@ export default function NewPoolPage() {
   }, [programId]);
 
   useEffect(() => {
-    if (connected && wallet) {
-      setAdminAddress(wallet.publicKey.toBase58());
+    if (connected && publicKey) {
+      setAdminAddress(publicKey.toBase58());
     }
-  }, [wallet, connected]);
+  }, [wallet, connected, publicKey]);
 
   const canSubmit =
     connected &&
@@ -91,7 +92,7 @@ export default function NewPoolPage() {
     (adminAddress || !adminControlled);
 
   async function onSubmit() {
-    if (!canSubmit || !wallet) {
+    if (!canSubmit || !wallet || !publicKey) {
       return;
     }
     setSubmitting(true);
@@ -111,7 +112,7 @@ export default function NewPoolPage() {
         ),
         assetMints: assets.map((asset) => asset.mint),
         initialAssetQuantities: assets.map((asset) => new BN(asset.quantity)),
-        creator: wallet.publicKey,
+        creator: publicKey,
         creatorAssets: assets.map((asset) => {
           const found = tokenAccounts?.find((tokenAccount) =>
             tokenAccount.effectiveMint.equals(asset.mint),
@@ -133,7 +134,7 @@ export default function NewPoolPage() {
       });
       const signed = await signTransactions({
         transactionsAndSigners,
-        wallet,
+        wallet: wallet.adapter as BaseSignerWalletAdapter,
         connection,
       });
       for (let signedTransaction of signed) {
