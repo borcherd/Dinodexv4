@@ -1,0 +1,16 @@
+{
+    "tabWidth": 4,
+    "trailingComma": "all",
+    "singleQuote": true,
+    "jsxBracketSameLine": true,
+    "semi": true,
+    "importOrder": [
+        "^react$",
+        "<THIRD_PARTY_MODULES>",
+        "^components",
+        "^(store)|^(context)|^(utils$)|(^assets$)|(^consts$)|(^hooks$)|(^config$)",
+        "^[./]"
+    ],
+    "importOrderSeparation": true,
+    "importOrderSortSpecifiers": true
+}
